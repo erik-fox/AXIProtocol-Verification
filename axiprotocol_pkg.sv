@@ -32,7 +32,7 @@ class tester;
 
 		//$value$plusargs("TESTCASE=%s",testcase);
 		//case(testcase)
-			//Read Burst
+			//Read Burst -> test the different possiblities
 			//Overlapping readburst:
 			//write burst
 			//out of order transactions
