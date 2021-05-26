@@ -72,19 +72,20 @@ class tester;
 endclass 
 
 class coverage;
+	virtual tbbfm bfm;
 	covergroup inputs;
-		readaddr: bfm.araddr;
-		readid: bfm.arid;
-		readlen: bfm.arlen;
-		readsize: bfm.arsize;
-		readburst: bfm.arburst;
-		writeaddr: bfm.awaddr;
-		writelen: bfm.awlen;
-		writestrobe: bfm.wstrb;
-		writesize: bfm.awsize;
-		writeburst: bfm.awburst;
-		writedata: bfm.wdata;
-		writeide: bfm.awid;
+		readaddr:coverpoint bfm.araddr;
+		readid:coverpoint bfm.arid;
+		readlen:coverpoint bfm.arlen;
+		readsize:coverpoint bfm.arsize;
+		readburst: coverpoint bfm.arburst;
+		writeaddr:coverpoint bfm.awaddr;
+		writelen:coverpoint bfm.awlen;
+		writestrobe:coverpoint bfm.wstrb;
+		writesize:coverpoint bfm.awsize;
+		writeburst:coverpoint bfm.awburst;
+		writedata:coverpoint bfm.wdata;
+		writeide:coverpoint bfm.awid;
 	endgroup
 	function new( virtual interface tbbfm b);
 		inputs = new();
@@ -111,7 +112,7 @@ class testbench;
 		//checker_h = new(bfm);
       		fork
         		tester_h.execute();
-        		coverage_h.execute();
+        		//coverage_h.execute();
         		//scoreboard_h.execute();
 			//checker_h.execute();
       		join_none
