@@ -3,8 +3,7 @@
 module duv(tbbfm bfm); 
 parameter SIZE=3;
 parameter WIDTH=32; 
-timeunit 1ns;
-timeprecision 100ps;
+
 
 
 logic [4095:0][7:0] slave_mem;
