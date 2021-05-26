@@ -87,6 +87,10 @@ class coverage;
 		writedata:coverpoint bfm.wdata;
 		writeide:coverpoint bfm.awid;
 	endgroup
+	//State coverage
+	//State Transition coverage
+	//Output coverage
+	
 	function new( virtual interface tbbfm b);
 		inputs = new();
 		bfm=b;
