@@ -2,7 +2,7 @@ package axiprotocol;
   
 class request;
 	//What are the appropriate constraints
-	rand bit rw;
+	rand bit [2:0] op;
 	rand bit [31:0] address; 
 	rand bit[3:0] readid;
 	rand bit [3:0]readlen; 
@@ -57,9 +57,14 @@ class tester;
          	 begin
 			assert(r0.randomize());
    
-			case(r0.rw)
-				1'b0:read(r0.address,r0.readid, r0.readlen,r0.readsize,r0.readburst);//read
-				1'b1:write(r0.waddress,r0.wlen, r0.wstrobe, r0.wsize,r0.wburst, r0.data, r0.writeid);//write
+			case(r0.op)
+				3'b000:read(r0.address,r0.readid, r0.readlen,r0.readsize,r0.readburst);//read
+				3'b001:write(r0.waddress,r0.wlen, r0.wstrobe, r0.wsize,r0.wburst, r0.data, r0.writeid);//write
+			//	3'b010:overlapping readbursts
+			//	3'b010:out of order transactions
+			//	3'b010:
+			//	3'b010:
+			//	3'b010:
 			endcase
           	end
 		end
