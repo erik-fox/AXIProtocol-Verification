@@ -71,7 +71,7 @@ assign AWVALID=intf.AWVALID;
 assign AWBURST=intf.AWBURST;
 assign AWSIZE=intf.AWSIZE;
 assign AWLEN=intf.AWLEN;
-assign AWLEN=intf.AWADDR;
+assign AWADDR=intf.AWADDR;
 assign AWID=intf.AWID;
 
 assign WREADY= intf.WREADY;
