@@ -17,6 +17,10 @@ class request;
 	rand bit [3:0] writeid;
 
 	//CONSTRAINTS
+	//awaddr>32'h5ff and <=32'hfff and awsize <3'b100
+	//arsize 000, 001, 010
+	//arburst 00, 01, 10
+	//arlen 0001,0011, 0111,1111
 		
 endclass// Code your design here
 class tester;
