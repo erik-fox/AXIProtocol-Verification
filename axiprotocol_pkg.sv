@@ -70,10 +70,33 @@ class tester;
 
 	endtask
 endclass 
+
+class coverage;
+	covergroup inputs;
+		readaddr: bfm.araddr;
+		readid: bfm.arid;
+		readlen: bfm.arlen;
+		readsize: bfm.arsize;
+		readburst: bfm.arburst;
+		writeaddr: bfm.awaddr;
+		writelen: bfm.awlen;
+		writestrobe: bfm.wstrb;
+		writesize: bfm.awsize;
+		writeburst: bfm.awburst;
+		writedata: bfm.wdata;
+		writeide: bfm.awid;
+	endgroup
+	function new( virtual interface tbbfm b);
+		inputs = new();
+		bfm=b;
+	endfunction
+endclass
+
+
 class testbench;
 	virtual tbbfm bfm;
 	tester tester_h;
-    	//coverage coverage_h;
+    	coverage coverage_h;
     	//scoreboard scoreboard_h;
 	//checker checker_h;
     
@@ -83,12 +106,12 @@ class testbench;
     
     	task execute();
       		tester_h = new(bfm);
-      		//coverage_h= new(bfm);
+      		coverage_h= new(bfm);
       		//scoreboard_h = new(bfm);
 		//checker_h = new(bfm);
       		fork
         		tester_h.execute();
-        		//coverage_h.execute();
+        		coverage_h.execute();
         		//scoreboard_h.execute();
 			//checker_h.execute();
       		join_none
