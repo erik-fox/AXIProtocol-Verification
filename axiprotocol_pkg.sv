@@ -41,7 +41,7 @@ class request;
 	//araddr>32'h1ff aradddr<=32'hfff 
 	constraint AR_Addr{address inside {[32'h1ff:32'hfff]};}
 	//wstrb 0001, 0010, 0100,1000,0011,0101,1001, 0110, 1010,1100,00111,1110,1011, 1101, 1111,	
-	constraint W_strobe{wstrobe inside [1:15];}
+	constraint W_strobe{wstrobe inside {[1:15]};}
 endclass// Code your design here
 class tester;
 	virtual tbbfm bfm;
@@ -70,12 +70,12 @@ class tester;
    
 			case(r0.op)
 				3'b000:read(r0.address,r0.readid, r0.readlen,r0.readsize,r0.readburst);//read
-				3'b001:write(r0.waddress,r0.wlen, r0.wstrobe, r0.wsize,r0.wburst, r0.data, r0.writeid);//write
-			//	3'b010:overlapping readbursts
+				3'b001: write(r0.waddress,r0.wlen, r0.wstrobe, r0.wsize,r0.wburst, r0.data, r0.writeid);//write
+			/*	3'b010:overlapping readbursts
 			//	3'b010:out of order transactions
 			//	3'b010:
 			//	3'b010:
-			//	3'b010:
+			//	3'b010:*/
 			endcase
           	end
 		end
