@@ -4,10 +4,10 @@ class request;
 	//What are the appropriate constraints
 	rand bit [2:0] op;
 	rand bit [31:0] address; 
-	rand bit[3:0] readid;
+	rand bit [3:0] readid;
 	rand bit [3:0]readlen; 
 	rand bit [2:0] readsize; 
-	rand bit[1:0] readburst;
+	rand bit [1:0] readburst;
 	rand bit [31:0]waddress; 
 	rand bit [3:0] wlen;
 	rand bit [3:0] wstrobe; 
@@ -15,22 +15,33 @@ class request;
 	rand bit [1:0] wburst; 
 	rand bit [31:0] data; 
 	rand bit [3:0] writeid;
-
+   // bit wlen_c[4] = '{2,4,8,16};
 	//CONSTRAINTS
 	//FROM THE SPEC:
 	//AWLEN/ARLEN 0000 ->1 through 1111->16; wrapping bursts, length must be 2,4,8,16
+	constraint AW_len{wlen dist {1:/11,2:/5, 3:/11, [4:6]:/15, 7:/11, [8:14]:/35, 15:/11 };}      //awlen 0001,0011,0111,1111
+	constraint AR_len{readlen dist {1:/11,2:/5, 3:/11, [4:6]:/15, 7:/11,[8:14]:/35, 15:/11 };}   //arlen 0001,0011, 0111,1111
+	//constraint Burst_len{wburst inside wlen_c;}											   //wrapping bursts, length must be 2,4,8,16
 	//ARSIZE/AWSIZE 000->1 through 111 -> 128 size of transfer must not exceed data bus width in transaction
+	constraint AR_size{readsize inside {[1:3]};}												//arsize 000, 001, 010
+	constraint AW_size{wsize inside {[1:3]};}													//awsize 000, 001,010
 	//ARBURST/AWBURST 00 -> fixed 01 -> INCR 10-> WRAP
+	constraint AR_Burst{readburst inside {[0:2]};}												//arburst 00, 01, 10
+	constraint AW_Burst{wburst inside {[0:2]};}													//awburst 00,01,10
 	//IN THE CODE:
 	//awaddr>32'h5ff and <=32'hfff and awsize <3'b100
+	constraint AW_Addr{waddress inside {[32'h5ff:32'hfff]};}	
 	//arsize 000, 001, 010
 	//arburst 00, 01, 10
 	//arlen 0001,0011, 0111,1111
 	//awburst 00,01,10,
 	//awsize 000, 001,010
 	//awlen 0001,0011,0111,1111
+	
 	//araddr>32'h1ff aradddr<=32'hfff 
+	constraint AR_Addr{address inside {[32'h1ff:32'hfff]};}
 	//wstrb 0001, 0010, 0100,1000,0011,0101,1001, 0110, 1010,1100,00111,1110,1011, 1101, 1111,	
+	constraint W_strobe{wstrobe inside [1:15];}
 endclass// Code your design here
 class tester;
 	virtual tbbfm bfm;
@@ -71,8 +82,8 @@ class tester;
 	endtask
 	task read(input bit [31:0] address, input bit[3:0] readid, input bit [3:0]readlen,input bit [2:0] readsize, input bit[1:0] readburst);
 		bfm.araddr=address;
-    		bfm.arid=readid;
-    		bfm.arlen=readlen;
+    	bfm.arid=readid;
+    	bfm.arlen=readlen;
   		bfm.arsize=readsize;
   		bfm.arburst=readburst;
 	endtask
