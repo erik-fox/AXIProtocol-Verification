@@ -1,4 +1,3 @@
-`include"//khensu/Home06/anurag/Desktop/SV_AXI_finlly_final/AXI_Interface.sv"
 
 
 module AXI_top_design #(parameter WIDTH, SIZE)
