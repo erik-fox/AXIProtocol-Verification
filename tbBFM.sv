@@ -1,4 +1,4 @@
-interface tbbfm;
+interface tbbfm#(parameter WIDTH=32, SIZE=3);
 //INPUTS
 bit reset;
 bit clk;
