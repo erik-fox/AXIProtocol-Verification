@@ -44,22 +44,22 @@ wire		RVALID;
 wire		RREADY;
 wire CLOCK, RESET;
 
- assign CLOCK = bfm.clk;
- assign RESET = bfm.reset;
- assign ARREADY = bfm.ARREADY;
- assign ARID = bfm.ARID;
- assign ARADDR = bfm.ARADDR;
- assign ARLEN= bfm.ARLEN;
- assign ARSIZE= bfm.ARSIZE;
- assign ARBURST= bfm.ARBURST;
- assign ARVALID = bfm.ARVALID;
+assign CLOCK = bfm.clk;
+assign RESET = bfm.reset;
+assign ARREADY = bfm.ARREADY;
+assign ARID = bfm.ARID;
+assign ARADDR = bfm.ARADDR;
+assign ARLEN= bfm.ARLEN;
+assign ARSIZE= bfm.ARSIZE;
+assign ARBURST= bfm.ARBURST;
+assign ARVALID = bfm.ARVALID;
 
- assign RID = bfm.RID;
- assign RDATA = bfm.RDATA;
- assign RRESP = bfm. RRESP;
- assign RLAST = bfm.RLAST;
- assign RVALID = bfm.RVALID;
- assign RREADY = bfm.RREADY;
+assign RID = bfm.RID;
+assign RDATA = bfm.RDATA;
+assign RRESP = bfm. RRESP;
+assign RLAST = bfm.RLAST;
+assign RVALID = bfm.RVALID;
+assign RREADY = bfm.RREADY;
 
 assign AWREADY= bfm.AWREADY;
 assign AWVALID=bfm.AWVALID;

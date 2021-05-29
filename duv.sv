@@ -10,20 +10,20 @@ logic [4095:0][7:0] master_mem;
 	
 
 
- assign bfm.ARREADY = intf.ARREADY;
- assign bfm.ARID = intf.ARID;
- assign bfm.ARADDR = intf.ARADDR;
- assign bfm.ARLEN= intf.ARLEN;
- assign bfm.ARSIZE= intf.ARSIZE;
- assign bfm.ARBURST= intf.ARBURST;
- assign bfm.ARVALID = intf.ARVALID;
+assign bfm.ARREADY = intf.ARREADY;
+assign bfm.ARID = intf.ARID;
+assign bfm.ARADDR = intf.ARADDR;
+assign bfm.ARLEN= intf.ARLEN;
+assign bfm.ARSIZE= intf.ARSIZE;
+assign bfm.ARBURST= intf.ARBURST;
+assign bfm.ARVALID = intf.ARVALID;
 
- assign bfm.RID = intf.RID;
- assign bfm.RDATA = intf.RDATA;
- assign bfm.RRESP = intf. RRESP;
- assign bfm.RLAST = intf.RLAST;
- assign bfm.RVALID = intf.RVALID;
- assign bfm.RREADY = intf.RREADY;
+assign bfm.RID = intf.RID;
+assign bfm.RDATA = intf.RDATA;
+assign bfm.RRESP = intf. RRESP;
+assign bfm.RLAST = intf.RLAST;
+assign bfm.RVALID = intf.RVALID;
+assign bfm.RREADY = intf.RREADY;
 
 assign bfm.AWREADY= intf.AWREADY;
 assign bfm.AWVALID=intf.AWVALID;
