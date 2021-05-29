@@ -124,6 +124,12 @@ class coverage;
 		inputs = new();
 		bfm=b;
 	endfunction
+	task execute();
+		forever begin
+			@(posedge bfm.clk);
+			inputs.sample();
+		end
+	endtask 
 endclass
 
 
@@ -145,7 +151,7 @@ class testbench;
 		//checker_h = new(bfm);
       		fork
         		tester_h.execute();
-        		//coverage_h.execute();
+        		coverage_h.execute();
         		//scoreboard_h.execute();
 			//checker_h.execute();
       		join_none
