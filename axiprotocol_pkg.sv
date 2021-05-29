@@ -54,50 +54,102 @@ class tester;
 
 		r0=new();
 
-		//$value$plusargs("TESTCASE=%s",testcase);
-		//case(testcase)
-			//Read Burst -> test the different possiblities
-			//Overlapping readburst:
-			//write burst
-			//out of order transactions
-		//endcase
+		$value$plusargs("TESTCASE=%s",testcase);
+		case(testcase)
+			"readburst": read(32'h000005FF, 4'b0000, 4'b0000,3'b000,2'b00);//Read Burst 
+			"overlapping_readburst":begin read(32'h000005FF, 4'b0000, 4'b0000,3'b000,2'b00);read(32'h00000600, 4'b0000, 4'b0000,3'b000,2'b00);end //overlapping readbursts
+			"write_burst":write(32'h000006FE,4'b0011, 4'b0100, 3'b010,2'b01,32'hFFFFFFFF,4'b0100);//write burst
+			"out_of_order":begin read(32'h000008FF, 4'b0001,4'b0011,3'b010,2'b01);write(32'h000006FE,4'b0011, 4'b0100, 3'b010,2'b01,32'hFFFFFFFF,4'b0100);end // Transaction ordering
+			"fulltest":determine();
+		endcase
 
 		repeat(1000) 
 		begin
-          	@(negedge bfm.clk)
+          	@(posedge bfm.clk)
          	 begin
 			assert(r0.randomize());
    
 			case(r0.op)
 				3'b000:read(r0.address,r0.readid, r0.readlen,r0.readsize,r0.readburst);//read
 				3'b001: write(r0.waddress,r0.wlen, r0.wstrobe, r0.wsize,r0.wburst, r0.data, r0.writeid);//write
-			/*	3'b010:overlapping readbursts
-			//	3'b010:out of order transactions
-			//	3'b010:
-			//	3'b010:
-			//	3'b010:*/
+				3'b010: begin read(r0.address,r0.readid, r0.readlen,r0.readsize,r0.readburst);read(32'h00000600, 4'b0000, 4'b0000,3'b000,2'b00);end //overlapping readbursts
+				3'b010: begin read(r0.address, r0.readid,r0.readlen,r0.readsize,r0.readburst);write(r0.waddress,r0.wlen, r0.wstrobe, r0.wsize,r0.wburst,r0.data,r0.writeid);end // Transaction ordering
 			endcase
           	end
 		end
 	endtask
 	task read(input bit [31:0] address, input bit[3:0] readid, input bit [3:0]readlen,input bit [2:0] readsize, input bit[1:0] readburst);
-		bfm.araddr=address;
-    	bfm.arid=readid;
-    	bfm.arlen=readlen;
-  		bfm.arsize=readsize;
-  		bfm.arburst=readburst;
+		@(negedge bfm.clk)begin
+			bfm.araddr=address;
+    			bfm.arid=readid;
+    			bfm.arlen=readlen;
+  			bfm.arsize=readsize;
+  			bfm.arburst=readburst;
+		end
 	endtask
   
 	task write(input bit [31:0]waddress, input bit [3:0] wlen, input bit [3:0] wstrobe, input bit [2:0] wsize, input bit [1:0] wburst, input bit [31:0] data, input bit [3:0] writeid);
-		bfm.awaddr=waddress;
-  		bfm.awlen=wlen;
-  		bfm.wstrb=wstrobe;
-  		bfm.awsize=wsize;
-		bfm.awburst=wburst;
- 		bfm.wdata=data;
-		bfm.awid=writeid;
-
+		@(negedge bfm.clk)begin
+			bfm.awaddr=waddress;
+  			bfm.awlen=wlen;
+	  		bfm.wstrb=wstrobe;
+  			bfm.awsize=wsize;
+			bfm.awburst=wburst;
+ 			bfm.wdata=data;
+			bfm.awid=writeid;
+		end
 	endtask
+	task determine();
+		#50
+		read(32'h00000FFF, 4'b0000, 4'b0000,3'b000,2'b00); //readburst
+		#50
+		read(32'h000005FF, 4'b0000, 4'b0000,3'b000,2'b00);//overlapping readburst
+		read(32'h00000600, 4'b0000, 4'b0000,3'b000,2'b00);
+		#50
+		write(32'h000006FF,4'b0000, 4'b0000, 3'b000,2'b00,32'hFFFFFFFF,4'b0000);//write burst
+    		#50	
+		read(32'h000008FF, 4'b0000, 4'b0011,3'b000,2'b00);//variable read burst length
+		#50
+    		write(32'h000006FE,4'b0011, 4'b0000, 3'b000,2'b00,32'hFFFFFFFF,4'b0000);// variable write burst length
+		#50
+    		read(32'h000008FF, 4'b0000, 4'b0011,3'b000,2'b01);//variable read burst type
+		#50
+		write(32'h000006FE,4'b0011, 4'b0000, 3'b000,2'b01,32'hFFFFFFFF,4'b0000);// variable write burst type  
+    		#50
+		read(32'h000008FF, 4'b0000, 4'b0011,3'b010,2'b01);//variable read burst size
+		#50
+    		write(32'h000006FE,4'b0011, 4'b0000, 3'b010,2'b01,32'hFFFFFFFF,4'b0000);// variable write burst size
+    		#50
+    		read(32'h000008FF, 4'b0001,4'b0011,3'b010,2'b01);//Transaction ordering
+	   	write(32'h000006FE,4'b0011, 4'b0100, 3'b010,2'b01,32'hFFFFFFFF,4'b0100);// Transaction ordering
+		
+		for(int i=32'h000006FF;i<=32'h00000FFF;i++) begin
+			write(i,4'b0000, 4'b0000, 3'b000,2'b00,i,4'b0000);
+		end
+	
+		#50
+		read(32'h000006FF,4'b0000,4'b0100,3'b001,2'b00); //fixed read burst
+		#50
+		read(32'h000007FF,4'b0000,4'b0001,3'b000,2'b01); //incrementing read burst
+		#50
+		read(32'h00000700,4'b0000,4'b0001,3'b000,2'b10); //wrapping readburst
+		//write and reading from same location
+		#50
+		write(32'h000006FF,4'b0000, 4'b0000, 3'b000,2'b00,32'hFFFFFFFF,4'b0000);
+		read(32'h000006FF,4'b0000,4'b0000,3'b000,2'b00);
+		//simultaneous write to different memory locations
+		#50 
+		write(32'h00000755,4'b0000, 4'b0000, 3'b000,2'b00,32'hFFFFFFFF,4'b0000);
+		write(32'h00000765,4'b0000, 4'b0000, 3'b000,2'b00,32'hFFFFFFFF,4'b0000);
+		//back to back writes to same memory and reading from it atlast
+		#50 
+		write(32'h000007EE,4'b0000, 4'b0000, 3'b000,2'b00,32'hFFF89000,4'b0000);
+		write(32'h000007EE,4'b0000, 4'b0000, 3'b000,2'b00,32'hFFF89670,4'b0000);
+		read(32'h000007EE,4'b0000,4'b0000,3'b000,2'b00);
+		//Access out-of-bound memory
+		#50
+		read(32'hFFFFF7EE,4'b0000,4'b0000,3'b000,2'b00);
+	endtask		
 endclass 
 
 class coverage;
@@ -118,19 +170,40 @@ class coverage;
 		read: cross readid, readlen, readsize, readburst;
 		write: cross writelen, writestrobe, writesize, writeburst, writeid;
 	endgroup
-	//State coverage
-
-	//State Transition coverage
-	//Output coverage
+	covergroup outputs;
+		//readburst
+		readaddressvalid:coverpoint bfm.ARVALID;
+		readaddressready:coverpoint bfm.ARREADY;
+		readlast:coverpoint bfm.RLAST;
+		readvalid:coverpoint bfm.RVALID;
+		readready:coverpoint bfm.RREADY;
+		readaddresssignals: cross readaddressvalid, readaddressready;
+		readsignals: cross readvalid, readready;
+		readsignalslast: cross readvalid, readready, readlast;
+		//writeburst
+		writeaddressvalid:coverpoint bfm.AWVALID;
+		writeaddressready:coverpoint bfm.AWREADY;
+		writelast: coverpoint bfm.WLAST;
+		writevalid: coverpoint bfm.WVALID;
+		writeready: coverpoint bfm.WREADY;
+		writesignals: cross writevalid, writeready;
+		writesignalslast: cross writelast, writevalid, writeready;
+		writeresponse: coverpoint bfm.BRESP;
+		writeresponsevalid: coverpoint bfm.BVALID;
+		writeresponseready: coverpoint bfm.BREADY;
+		writeresponsecross: cross writeresponse, writeresponsevalid, writeresponseready; 
+	endgroup
 	
 	function new( virtual interface tbbfm b);
 		inputs = new();
+		outputs= new();
 		bfm=b;
 	endfunction
 	task execute();
 		forever begin
 			@(posedge bfm.clk);
 			inputs.sample();
+			outputs.sample();
 		end
 	endtask 
 endclass
