@@ -15,7 +15,7 @@ compile:
 #	vopt +acc top -o top_optimized
 
 run: 
-	vsim +TESTCASE=full_test top_optimized -coverage
+	vsim +TESTCASE=fulltest top_optimized -coverage
 
 clean:
 	rm -rf work work.$(MODE) transcript *~ vsim.wlf *.log dgs.dbg dmslogdir
