@@ -83,7 +83,6 @@ assign BREADY=bfm.BREADY;
 
 initial
 begin
-	$display("WOrking");
 	$dumpfile("dump.vcd"); $dumpvars;
 	testbench_h = new(bfm);
     	testbench_h.execute();
