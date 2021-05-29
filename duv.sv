@@ -46,16 +46,13 @@ wire	[SIZE-2:0]	RRESP;
 wire		RLAST;
 wire		RVALID;
 wire		RREADY;
-wire CLOCK, RESET;
 
- assign CLOCK = bfm.clk;
- assign RESET = bfm.reset;
- assign ARREADY = bfm.ARREADY;
- assign ARID = bfm.ARID;
- assign ARADDR = bfm.ARADDR;
- assign ARLEN= bfm.ARLEN;
- assign ARSIZE= bfm.ARSIZE;
- assign ARBURST= bfm.ARBURST;
+ assign bfm.ARREADY = intf.ARREADY;
+ assign bfm.ARID = intf.ARID;
+ assign bfm.ARADDR = intf.ARADDR;
+ assign bfm.ARLEN= intf.ARLEN;
+ assign bfm.ARSIZE= bfm.ARSIZE;
+ assign bfm.ARBURST= bfm.ARBURST;
  assign ARVALID = bfm.ARVALID;
 
  assign RID = bfm.RID;
