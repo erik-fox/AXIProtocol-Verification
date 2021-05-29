@@ -8,44 +8,7 @@ parameter WIDTH=32;
 logic [4095:0][7:0] slave_mem;
 logic [4095:0][7:0] master_mem;
 	
-wire		AWREADY;
-wire		AWVALID;
-wire	[SIZE-2:0]	AWBURST;
-wire	[SIZE-1:0]	AWSIZE;
-wire	[(WIDTH/8)-1:0]	AWLEN;
-wire	[WIDTH-1:0]	AWADDR;
-wire	[(WIDTH/8)-1:0]	AWID;
 
-// DATA WRITE CHANNEL
-wire		WREADY;
-wire		WVALID;
-wire		WLAST;
-wire	[(WIDTH/8)-1:0]	WSTRB;
-wire	[WIDTH:0]	WDATA;
-wire	[(WIDTH/8)-1:0]	WID;
-
-// WRITE RESPONSE CHANNEL
-wire	[(WIDTH/8)-1:0]	BID;
-wire	[SIZE-2:0]	BRESP;
-wire		BVALID;
-wire		BREADY;
-
-// READ ADDRESS CHANNEL
-wire		ARREADY;
-wire	[(WIDTH/8)-1:0]	ARID;
-wire	[WIDTH-1:0]	ARADDR;
-wire	[(WIDTH/8)-1:0]	ARLEN;
-wire	[SIZE-1:0]	ARSIZE;
-wire	[SIZE-2:0]	ARBURST;
-wire		ARVALID;
-
-// READ DATA CHANNEL
-wire	[(WIDTH/8)-1:0]	RID;
-wire	[WIDTH-1:0]	RDATA;
-wire	[SIZE-2:0]	RRESP;
-wire		RLAST;
-wire		RVALID;
-wire		RREADY;
 
  assign bfm.ARREADY = intf.ARREADY;
  assign bfm.ARID = intf.ARID;
