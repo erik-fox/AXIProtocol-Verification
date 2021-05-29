@@ -51,36 +51,36 @@ wire		RREADY;
  assign bfm.ARID = intf.ARID;
  assign bfm.ARADDR = intf.ARADDR;
  assign bfm.ARLEN= intf.ARLEN;
- assign bfm.ARSIZE= bfm.ARSIZE;
- assign bfm.ARBURST= bfm.ARBURST;
- assign ARVALID = bfm.ARVALID;
+ assign bfm.ARSIZE= intf.ARSIZE;
+ assign bfm.ARBURST= intf.ARBURST;
+ assign bfm.ARVALID = intf.ARVALID;
 
- assign RID = bfm.RID;
- assign RDATA = bfm.RDATA;
- assign RRESP = bfm. RRESP;
- assign RLAST = bfm.RLAST;
- assign RVALID = bfm.RVALID;
- assign RREADY = bfm.RREADY;
+ assign bfm.RID = intf.RID;
+ assign bfm.RDATA = intf.RDATA;
+ assign bfm.RRESP = intf. RRESP;
+ assign bfm.RLAST = intf.RLAST;
+ assign bfm.RVALID = intf.RVALID;
+ assign bfm.RREADY = intf.RREADY;
 
-assign AWREADY= bfm.AWREADY;
-assign AWVALID=bfm.AWVALID;
-assign AWBURST=bfm.AWBURST;
-assign AWSIZE=bfm.AWSIZE;
-assign AWLEN=bfm.AWLEN;
-assign AWADDR=bfm.AWADDR;
-assign AWID=bfm.AWID;
+assign bfm.AWREADY= intf.AWREADY;
+assign bfm.AWVALID=intf.AWVALID;
+assign bfm.AWBURST=intf.AWBURST;
+assign bfm.AWSIZE=intf.AWSIZE;
+assign bfm.AWLEN=intf.AWLEN;
+assign bfm.AWADDR=intf.AWADDR;
+assign bfm.AWID=intf.AWID;
 
-assign WREADY= bfm.WREADY;
-assign WVALID= bfm.WVALID;
-assign WLAST=bfm.WLAST;
-assign WSTRB=bfm.WSTRB;
-assign WDATA=bfm.WDATA;
-assign WID=bfm.WID;
+assign bfm.WREADY= intf.WREADY;
+assign bfm.WVALID= intf.WVALID;
+assign bfm.WLAST=intf.WLAST;
+assign bfm.WSTRB=intf.WSTRB;
+assign bfm.WDATA=intf.WDATA;
+assign bfm.WID=intf.WID;
 
-assign BID=bfm.BID;
-assign BRESP=bfm.BRESP;
-assign BVALID=bfm.BVALID;
-assign BREADY=bfm.BREADY;
+assign bfm.BID=intf.BID;
+assign bfm.BRESP=intf.BRESP;
+assign bfm.BVALID=intf.BVALID;
+assign bfm.BREADY=intf.BREADY;
   
 // Interface instance
  axi intf();
