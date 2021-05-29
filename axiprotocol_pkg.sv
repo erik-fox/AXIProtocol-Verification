@@ -114,9 +114,12 @@ class coverage;
 		writesize:coverpoint bfm.awsize;
 		writeburst:coverpoint bfm.awburst;
 		writedata:coverpoint bfm.wdata;
-		writeide:coverpoint bfm.awid;
+		writeid:coverpoint bfm.awid;
+		read: cross readid, readlen, readsize, readburst;
+		write: cross writelen, writestrobe, writesize, writeburst, writeid;
 	endgroup
 	//State coverage
+
 	//State Transition coverage
 	//Output coverage
 	
