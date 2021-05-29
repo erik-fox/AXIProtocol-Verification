@@ -46,40 +46,40 @@ wire CLOCK, RESET;
 
  assign CLOCK = bfm.clk;
  assign RESET = bfm.reset;
- assign ARREADY = intf.ARREADY;
- assign ARID = intf.ARID;
- assign ARADDR = intf.ARADDR;
- assign ARLEN= intf.ARLEN;
- assign ARSIZE= intf.ARSIZE;
- assign ARBURST= intf.ARBURST;
- assign ARVALID = intf.ARVALID;
+ assign ARREADY = bfm.ARREADY;
+ assign ARID = bfm.ARID;
+ assign ARADDR = bfm.ARADDR;
+ assign ARLEN= bfm.ARLEN;
+ assign ARSIZE= bfm.ARSIZE;
+ assign ARBURST= bfm.ARBURST;
+ assign ARVALID = bfm.ARVALID;
 
- assign RID = intf.RID;
- assign RDATA = intf.RDATA;
- assign RRESP = intf. RRESP;
- assign RLAST = intf.RLAST;
- assign RVALID = intf.RVALID;
- assign RREADY = intf.RREADY;
+ assign RID = bfm.RID;
+ assign RDATA = bfm.RDATA;
+ assign RRESP = bfm. RRESP;
+ assign RLAST = bfm.RLAST;
+ assign RVALID = bfm.RVALID;
+ assign RREADY = bfm.RREADY;
 
-assign AWREADY= intf.AWREADY;
-assign AWVALID=intf.AWVALID;
-assign AWBURST=intf.AWBURST;
-assign AWSIZE=intf.AWSIZE;
-assign AWLEN=intf.AWLEN;
-assign AWADDR=intf.AWADDR;
-assign AWID=intf.AWID;
+assign AWREADY= bfm.AWREADY;
+assign AWVALID=bfm.AWVALID;
+assign AWBURST=bfm.AWBURST;
+assign AWSIZE=bfm.AWSIZE;
+assign AWLEN=bfm.AWLEN;
+assign AWADDR=bfm.AWADDR;
+assign AWID=bfm.AWID;
 
-assign WREADY= intf.WREADY;
-assign WVALID= intf.WVALID;
-assign WLAST=intf.WLAST;
-assign WSTRB=intf.WSTRB;
-assign WDATA=intf.WDATA;
-assign WID=intf.WID;
+assign WREADY= bfm.WREADY;
+assign WVALID= bfm.WVALID;
+assign WLAST=bfm.WLAST;
+assign WSTRB=bfm.WSTRB;
+assign WDATA=bfm.WDATA;
+assign WID=bfm.WID;
 
-assign BID=intf.BID;
-assign BRESP=intf.BRESP;
-assign BVALID=intf.BVALID;
-assign BREADY=intf.BREADY;
+assign BID=bfm.BID;
+assign BRESP=bfm.BRESP;
+assign BVALID=bfm.BVALID;
+assign BREADY=bfm.BREADY;
 
 initial
 begin
