@@ -1,4 +1,4 @@
-module top;
+module top#(parameter WIDTH=32, SIZE=3);
 import axiprotocol::*; 
 tbbfm bfm();	
 duv d0 (bfm);	
