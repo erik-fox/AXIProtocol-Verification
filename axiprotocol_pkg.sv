@@ -15,13 +15,12 @@ class request;
 	rand bit [1:0] wburst; 
 	rand bit [31:0] data; 
 	rand bit [3:0] writeid;
-   // bit wlen_c[4] = '{2,4,8,16};
+  
 	//CONSTRAINTS
 	//FROM THE SPEC:
 	//AWLEN/ARLEN 0000 ->1 through 1111->16; wrapping bursts, length must be 2,4,8,16
 	constraint AW_len{wlen dist {1:/11,2:/5, 3:/11, [4:6]:/15, 7:/11, [8:14]:/35, 15:/11 };}      //awlen 0001,0011,0111,1111
 	constraint AR_len{readlen dist {1:/11,2:/5, 3:/11, [4:6]:/15, 7:/11,[8:14]:/35, 15:/11 };}   //arlen 0001,0011, 0111,1111
-	//constraint Burst_len{wburst inside wlen_c;}											   //wrapping bursts, length must be 2,4,8,16
 	//ARSIZE/AWSIZE 000->1 through 111 -> 128 size of transfer must not exceed data bus width in transaction
 	constraint AR_size{readsize inside {[1:3]};}												//arsize 000, 001, 010
 	constraint AW_size{wsize inside {[1:3]};}													//awsize 000, 001,010
@@ -31,13 +30,7 @@ class request;
 	//IN THE CODE:
 	//awaddr>32'h5ff and <=32'hfff and awsize <3'b100
 	constraint AW_Addr{waddress inside {[32'h5ff:32'hfff]};}	
-	//arsize 000, 001, 010
-	//arburst 00, 01, 10
-	//arlen 0001,0011, 0111,1111
-	//awburst 00,01,10,
-	//awsize 000, 001,010
-	//awlen 0001,0011,0111,1111
-	
+		
 	//araddr>32'h1ff aradddr<=32'hfff 
 	constraint AR_Addr{address inside {[32'h1ff:32'hfff]};}
 	//wstrb 0001, 0010, 0100,1000,0011,0101,1001, 0110, 1010,1100,00111,1110,1011, 1101, 1111,	
@@ -123,16 +116,16 @@ class tester;
     		read(32'h000008FF, 4'b0001,4'b0011,3'b010,2'b01);//Transaction ordering
 	   	write(32'h000006FE,4'b0011, 4'b0100, 3'b010,2'b01,32'hFFFFFFFF,4'b0100);// Transaction ordering
 		
-		for(int i=32'h000006FF;i<=32'h00000FFF;i++) begin
+		for(int i=32'h00000600;i<=32'h0000060F;i++) begin
 			write(i,4'b0000, 4'b0000, 3'b000,2'b00,i,4'b0000);
 		end
 	
 		#50
-		read(32'h000006FF,4'b0000,4'b0100,3'b001,2'b00); //fixed read burst
+		read(32'h00000600,4'b0000,4'b0100,3'b001,2'b00); //fixed read burst
 		#50
-		read(32'h000007FF,4'b0000,4'b0001,3'b000,2'b01); //incrementing read burst
+		read(32'h00000600,4'b0000,4'b0001,3'b000,2'b01); //incrementing read burst
 		#50
-		read(32'h00000700,4'b0000,4'b0001,3'b000,2'b10); //wrapping readburst
+		read(32'h00000600,4'b0000,4'b0001,3'b000,2'b10); //wrapping readburst
 		//write and reading from same location
 		#50
 		write(32'h000006FF,4'b0000, 4'b0000, 3'b000,2'b00,32'hFFFFFFFF,4'b0000);
