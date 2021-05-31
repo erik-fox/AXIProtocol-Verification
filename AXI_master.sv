@@ -41,7 +41,7 @@ logic [31:0] address_slave, address_slave_reg, address_slave_temp, ARADDR_reg;
 enum logic [1:0] {R_CLEAR_M=2'b00, R_START_M, R_READ_M, R_VALID_M } RState_M,RNext_state_M;
 integer wrap_boundary1, first_time1, first_time1_next;
 covergroup masterstates @(posedge clk);
-	coverpoint wa_state {
+	coverpoint WAState_M {
 		bins a1 =(WA_IDLE_M=>WA_START_M);
 		bins a2 =(WA_START_M=>WA_WAIT_M);
 		bins a3 =(WA_WAIT_M=>WA_VALID_M);
@@ -50,7 +50,7 @@ covergroup masterstates @(posedge clk);
 		bins a6 =(WA_VALID_M=>WA_IDLE_M);
 		bins a7 =(WA_START_M=>WA_IDLE_M);
 	}
-	coverpoint w_state {
+	coverpoint WState_M {
 		bins b1 =(W_INIT_M=>W_INIT_M);
 		bins b2 =(W_INIT_M=>W_TRANSFER_M);
 		bins b3 =(W_TRANSFER_M=>W_READY_M);
@@ -62,12 +62,12 @@ covergroup masterstates @(posedge clk);
 		bins b9 =(W_VALID_M=>W_INIT_M);
 		bins b10 =(W_VALID_M=>W_TRANSFER_M);
 	}
-	coverpoint b_state {
+	coverpoint BState_M {
 		bins c1 = (B_IDLE_M=>B_START_M);
 		bins c2 = (B_START_M=>B_READY_M);
 		bins c3 = (B_READY_M=>B_IDLE_M);
 	}
-	coverpoint ar_state{
+	coverpoint ARState_M{
 		bins d1 = (AR_IDLE_M=>AR_WAIT_M);
 		bins d2 = (AR_WAIT_M=>AR_IDLE_M);
 		bins d3 = (AR_WAIT_M=>AR_READY_M);
@@ -77,7 +77,7 @@ covergroup masterstates @(posedge clk);
 		bins d7 = (AR_VALID_M=>AR_EXTRA_M);
 		bins d8 = (AR_EXTRA_M=>AR_IDLE_M);
 	}
-	coverpoint r_state{
+	coverpoint RState_M{
 		bins e1 = (R_CLEAR_M=>R_START_M);
 		bins e2 = (R_START_M=>R_START_M);
 		bins e3 = (R_START_M=>R_READ_M);
