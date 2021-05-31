@@ -10,7 +10,7 @@ class request;
 	rand bit [1:0] readburst;
 	rand bit [31:0]waddress; 
 	rand bit [3:0] wlen;
-	rand bit [3:0] wstrobe; 
+	randc bit [3:0] wstrobe; 
 	rand bit [2:0] wsize; 
 	rand bit [1:0] wburst; 
 	rand bit [31:0] data; 
@@ -19,11 +19,11 @@ class request;
 	//CONSTRAINTS
 	//FROM THE SPEC:
 	//AWLEN/ARLEN 0000 ->1 through 1111->16; wrapping bursts, length must be 2,4,8,16
-	constraint AW_len{wlen dist {1:/11,2:/5, 3:/11, [4:6]:/15, 7:/11, [8:14]:/35, 15:/11 };}      //awlen 0001,0011,0111,1111
+	constraint AW_len{wlen dist {1:/11,2:/5, 3:/11, [4:6]:/15, 7:/11, [8:14]:/35, 15:/11 };}     //awlen 0001,0011,0111,1111
 	constraint AR_len{readlen dist {1:/11,2:/5, 3:/11, [4:6]:/15, 7:/11,[8:14]:/35, 15:/11 };}   //arlen 0001,0011, 0111,1111
 	//ARSIZE/AWSIZE 000->1 through 111 -> 128 size of transfer must not exceed data bus width in transaction
-	constraint AR_size{readsize inside {[1:3]};}												//arsize 000, 001, 010
-	constraint AW_size{wsize inside {[1:3]};}													//awsize 000, 001,010
+	constraint AR_size{readsize dist {[1:3]:/60,[4:8]:/40};}									 //arsize 000, 001, 010
+	constraint AW_size{wsize dist {[1:3]:/60, [4:8]:/40};}									 //awsize 000, 001,010
 	//ARBURST/AWBURST 00 -> fixed 01 -> INCR 10-> WRAP
 	constraint AR_Burst{readburst inside {[0:2]};}												//arburst 00, 01, 10
 	constraint AW_Burst{wburst inside {[0:2]};}													//awburst 00,01,10
