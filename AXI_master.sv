@@ -50,6 +50,18 @@ covergroup masterstates @(posedge clk);
 		bins a6 =(WA_VALID_M=>WA_IDLE_M);
 		bins a7 =(WA_START_M=>WA_IDLE_M);
 	}
+	coverpoint w_state {
+		bins b1 =(W_INIT_M=>W_INIT_M);
+		bins b2 =(W_INIT_M=>W_TRANSFER_M);
+		bins b3 =(W_TRANSFER_M=>W_READY_M);
+		bins b4 =(W_TRANSFER_M=>W_ERROR_M);
+		bins b5 =(W_READY_M=>W_VALID_M);
+		bins b6 =(W_READY_M=>W_READY_M);
+		bins b7 =(W_ERROR_M=>W_VALID_M);
+		bins b8 =(W_ERROR_M=>W_TRANSFER_M);
+		bins b9 =(W_VALID_M=>W_INIT_M);
+		bins b10 =(W_VALID_M=>W_TRANSFER_M);
+	}
 endgroup
 masterstates mstates = new;
 initial
