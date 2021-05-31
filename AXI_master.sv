@@ -77,6 +77,14 @@ covergroup masterstates @(posedge clk);
 		bins d7 = (AR_VALID_M=>AR_EXTRA_M);
 		bins d8 = (AR_EXTRA_M=>AR_IDLE_M);
 	}
+	coverpoint r_state{
+		bins e1 = (R_CLEAR_M=>R_START_M);
+		bins e2 = (R_START_M=>R_START_M);
+		bins e3 = (R_START_M=>R_READ_M);
+		bins e4 = (R_READ_M=>R_VALID_M);
+		bins e5 = (R_VALID_M=>R_START_M);
+		bins e6 = (R_VALID_M=>R_CLEAR_M);
+	}
 endgroup
 masterstates mstates = new;
 initial
