@@ -5,7 +5,7 @@ class request;
 	rand bit [2:0] op;
 	rand bit [31:0] address; 
 	rand bit [3:0] readid;
-	rand bit [3:0]readlen; 
+	randc bit [3:0]readlen; 
 	rand bit [2:0] readsize; 
 	rand bit [1:0] readburst;
 	rand bit [31:0]waddress; 
@@ -29,12 +29,14 @@ class request;
 	constraint AW_Burst{wburst inside {[0:2]};}													//awburst 00,01,10
 	//IN THE CODE:
 	//awaddr>32'h5ff and <=32'hfff and awsize <3'b100
-	constraint AW_Addr{waddress inside {[32'h5ff:32'hfff]};}	
+	constraint AW_Addr{waddress dist {[32'h5ff:32'hfff]:/60, [0:32'h5ff]:/20,[32'hfff:32'hffffffff]:/20};}	
 		
 	//araddr>32'h1ff aradddr<=32'hfff 
 	constraint AR_Addr{address inside {[32'h1ff:32'hfff]};}
 	//wstrb 0001, 0010, 0100,1000,0011,0101,1001, 0110, 1010,1100,00111,1110,1011, 1101, 1111,	
 	constraint W_strobe{wstrobe inside {[1:15]};}
+	
+	constraint Op{op inside {[0:3]}; }
 endclass// Code your design here
 class tester;
 	virtual tbbfm bfm;
@@ -58,15 +60,16 @@ class tester;
 
 		repeat(1000) 
 		begin
-          	@(posedge bfm.clk)
+          	@(posedge bfm.clk);
          	 begin
-			assert(r0.randomize());
-   
+			   //$display("Hi");
+			    assert(r0.randomize());
+                 //$display($time,"r0.op=%d",r0.op);
 			case(r0.op)
-				3'b000:read(r0.address,r0.readid, r0.readlen,r0.readsize,r0.readburst);//read
-				3'b001: write(r0.waddress,r0.wlen, r0.wstrobe, r0.wsize,r0.wburst, r0.data, r0.writeid);//write
+				3'b000: begin read(r0.address,r0.readid, r0.readlen,r0.readsize,r0.readburst); end//read
+				3'b001: begin write(r0.waddress,r0.wlen, r0.wstrobe, r0.wsize,r0.wburst, r0.data, r0.writeid); end//write
 				3'b010: begin read(r0.address,r0.readid, r0.readlen,r0.readsize,r0.readburst);read(32'h00000600, 4'b0000, 4'b0000,3'b000,2'b00);end //overlapping readbursts
-				3'b010: begin read(r0.address, r0.readid,r0.readlen,r0.readsize,r0.readburst);write(r0.waddress,r0.wlen, r0.wstrobe, r0.wsize,r0.wburst,r0.data,r0.writeid);end // Transaction ordering
+				3'b011: begin read(r0.address, r0.readid,r0.readlen,r0.readsize,r0.readburst);write(r0.waddress,r0.wlen, r0.wstrobe, r0.wsize,r0.wburst,r0.data,r0.writeid);end // Transaction ordering
 			endcase
           	end
 		end
@@ -74,8 +77,8 @@ class tester;
 	task read(input bit [31:0] address, input bit[3:0] readid, input bit [3:0]readlen,input bit [2:0] readsize, input bit[1:0] readburst);
 		@(negedge bfm.clk)begin
 			bfm.araddr=address;
-    			bfm.arid=readid;
-    			bfm.arlen=readlen;
+    		bfm.arid=readid;
+    		bfm.arlen=readlen;
   			bfm.arsize=readsize;
   			bfm.arburst=readburst;
 		end
@@ -120,12 +123,30 @@ class tester;
 			write(i,4'b0000, 4'b0000, 3'b000,2'b00,i,4'b0000);
 		end
 	
+		
+		read(32'h00000600,4'b0000,4'b0000,3'b001,2'b00); //fixed read burst with size 1
+		read(32'h00000600,4'b0000,4'b0000,3'b001,2'b00); //fixed read burst with size 2
+		read(32'h00000600,4'b0000,4'b0000,3'b010,2'b00); //fixed read burst with size 4
 		#50
-		read(32'h00000600,4'b0000,4'b0100,3'b001,2'b00); //fixed read burst
+		read(32'h00000600,4'b0000,4'b0001,3'b000,2'b01); //incrementing read burst with size 1
+		read(32'h00000600,4'b0000,4'b0001,3'b001,2'b01); //incrementing read burst with size 2
+		read(32'h00000600,4'b0000,4'b0001,3'b010,2'b01); //incrementing read burst with size 4
 		#50
-		read(32'h00000600,4'b0000,4'b0001,3'b000,2'b01); //incrementing read burst
+		read(32'h00000600,4'b0000,4'b0001,3'b000,2'b10); //wrapping readburst with length 2 and size 1
+		read(32'h00000600,4'b0000,4'b0001,3'b001,2'b10); //wrapping readburst with length 2 and size 2
+		read(32'h00000600,4'b0000,4'b0001,3'b010,2'b10); //wrapping readburst with length 2 and size 4
 		#50
-		read(32'h00000600,4'b0000,4'b0001,3'b000,2'b10); //wrapping readburst
+		read(32'h00000600,4'b0000,4'b0011,3'b000,2'b10); //wrapping readburst with length 4 and size 1
+		read(32'h00000600,4'b0000,4'b0011,3'b001,2'b10); //wrapping readburst with length 4 and size 2
+		read(32'h00000600,4'b0000,4'b0011,3'b010,2'b10); //wrapping readburst with length 4 and size 4
+		#50
+		read(32'h00000600,4'b0000,4'b0111,3'b000,2'b10); //wrapping readburst with length 8 and size 1
+		read(32'h00000600,4'b0000,4'b0111,3'b001,2'b10); //wrapping readburst with length 8 and size 2
+		read(32'h00000600,4'b0000,4'b0111,3'b010,2'b10); //wrapping readburst with length 8 and size 4
+		#50
+		read(32'h00000600,4'b0000,4'b1111,3'b000,2'b10); //wrapping readburst with length 16 and size 1
+		read(32'h00000600,4'b0000,4'b1111,3'b001,2'b10); //wrapping readburst with length 16 and size 2
+		read(32'h00000600,4'b0000,4'b1111,3'b010,2'b10); //wrapping readburst with length 16 and size 4
 		//write and reading from same location
 		#50
 		write(32'h000006FF,4'b0000, 4'b0000, 3'b000,2'b00,32'hFFFFFFFF,4'b0000);
