@@ -89,6 +89,7 @@ endgroup
 masterstates mstates = new;
 initial
 	while (mstates.get_coverage()<100) 
+		begin end
 //////////////// WRITE ADDRESS CHANNEL MASTER//////////////////////////////////
 
 always_ff @(posedge clk or negedge resetn)	
