@@ -72,9 +72,10 @@ covergroup slavestates ;
 		bins e10=(R_ERROR_S=>R_START_S);
 	}	
 endgroup
+	slavestates sstate;
 initial
 	begin
-	slavestates sstate= new();
+	 sstate= new();
 	forever begin @(posedge clk)
 		sstate.sample();
 	end
