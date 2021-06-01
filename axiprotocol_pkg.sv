@@ -118,7 +118,7 @@ class tester;
     		#50
     		read(32'h000008FF, 4'b0001,4'b0011,3'b010,2'b01);//Transaction ordering
 	   	write(32'h000006FE,4'b0011, 4'b0100, 3'b010,2'b01,32'hFFFFFFFF,4'b0100);// Transaction ordering
-		
+		#50
 		for(int i=32'h00000600;i<=32'h0000060F;i++) begin
 			write(i,4'b0000, 4'b0000, 3'b000,2'b00,i,4'b0000);
 		end
