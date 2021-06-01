@@ -83,7 +83,7 @@ class tester;
          	forever begin
            @(posedge bfm.ARREADY);
              	break;
-        	 end
+        	 end 
   
 	endtask
   

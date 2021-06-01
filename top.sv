@@ -89,7 +89,7 @@ begin
 end
 initial
 begin
-     	#40000
+     	#300000
       	$finish();
 end
 endmodule
