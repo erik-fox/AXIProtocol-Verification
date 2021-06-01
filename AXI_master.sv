@@ -86,9 +86,10 @@ covergroup masterstates;
 		bins e6 = (R_VALID_M=>R_CLEAR_M);
 	}
 endgroup
+masterstates mstates;
 initial
 	begin
-		masterstates mstates = new();
+		mstates = new();
 		forever begin @(posedge clk)
 			mstates.sample();
 		end
