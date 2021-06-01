@@ -75,17 +75,20 @@ class tester;
 		end
 	endtask
 	task read(input bit [31:0] address, input bit[3:0] readid, input bit [3:0]readlen,input bit [2:0] readsize, input bit[1:0] readburst);
-		@(negedge bfm.clk)begin
 			bfm.araddr=address;
-    		bfm.arid=readid;
-    		bfm.arlen=readlen;
+    			bfm.arid=readid;
+    			bfm.arlen=readlen;
   			bfm.arsize=readsize;
   			bfm.arburst=readburst;
-		end
+         	forever begin
+           @(posedge bfm.ARREADY);
+             	break;
+        	 end
+  
 	endtask
   
 	task write(input bit [31:0]waddress, input bit [3:0] wlen, input bit [3:0] wstrobe, input bit [2:0] wsize, input bit [1:0] wburst, input bit [31:0] data, input bit [3:0] writeid);
-		@(negedge bfm.clk)begin
+
 			bfm.awaddr=waddress;
   			bfm.awlen=wlen;
 	  		bfm.wstrb=wstrobe;
@@ -93,7 +96,11 @@ class tester;
 			bfm.awburst=wburst;
  			bfm.wdata=data;
 			bfm.awid=writeid;
-		end
+         forever begin
+           @(posedge bfm.AWREADY);
+             	break;
+         end
+    
 	endtask
 	task determine();
 		#50
