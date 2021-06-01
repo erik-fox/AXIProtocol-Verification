@@ -31,7 +31,52 @@ enum logic [2:0] {R_CLEAR_S=3'b000, R_START_S, R_WAIT_S, R_VALID_S, R_ERROR_S } 
 integer wrap_boundary2, first_time2, first_time2_next;
 logic [4:0] counter, next_counter;
 logic [31:0] ARADDR_reg1, address_read,address_read_reg, address_read_temp;
+covergroup slavestates @(posedge clk);
+	coverpoint  WAState_S{
+		bins a1=(WA_IDLE_S=>WA_START_S);
+		bins a2=(WA_START_S=>WA_START_S);
+		bins a3=(WA_START_S=>WA_READY_S);
+		bins a4=(WA_READY_S=>WA_IDLE_S);
+	}
+	coverpoint WState_S{
+		bins b1=(W_INIT_S=>W_START_S);
+		bins b2=(W_START_S=>W_START_S);
+		bins b3=(W_START_S=>W_READY_S);
+		bins b4=(W_READY_S=>W_INIT_S);
+		bins b5=(W_READY_S=>W_VALID_S);
+		bins b6=(W_VALID_S=>W_START_S);
+	}
+	coverpoint BState_S{
+		bins c1=(B_IDLE_S=>B_LAST_S);
+		bins c2=(B_LAST_S=>B_LAST_S);
+		bins c3=(B_LAST_S=>B_START_S);
+		bins c4=(B_START_S=>B_WAIT_S);
+		bins c5=(B_WAIT_S=>B_IDLE_S);
+	}
+	coverpoint ARState_S{
+		bins d1=(AR_IDLE_S=>AR_WAIT_S);
+		bins d2=(AR_WAIT_S=>AR_WAIT_S);
+		bins d3=(AR_WAIT_S=>AR_READY_S);
+		bins d4=(AR_READY_S=>AR_IDLE_S);
+	}
+	coverpoint RState_S{
+		bins e1=(R_CLEAR_S=>R_CLEAR_S);
+		bins e2=(R_CLEAR_S=>R_START_S);
+		bins e3=(R_START_S=>R_WAIT_S);
+		bins e4=(R_WAIT_S=>R_WAIT_S);
+		bins e5=(R_WAIT_S=>R_VALID_S);
+		bins e6=(R_VALID_S=>R_START_S);
+		bins e7=(R_VALID_S=>R_CLEAR_S);
+		bins e8=(R_START_S=>R_ERROR_S);
+		bins e9=(R_ERROR_S=>R_VALID_S);
+		bins e10=(R_ERROR_S=>R_START_S);
+	}	
+endgroup
 
+slavestates sstate= new;
+initial
+	while(sstate.get_coverage()<100)
+		
 
 
 ///////////////////// WRITE ADDRESS CHANNEL SLAVE ////////////////////////////////////
