@@ -56,6 +56,7 @@ class tester;
 			"write_burst":write(32'h000006FE,4'b0011, 4'b0100, 3'b010,2'b01,32'hFFFFFFFF,4'b0100);//write burst
 			"out_of_order":begin read(32'h000008FF, 4'b0001,4'b0011,3'b010,2'b01);write(32'h000006FE,4'b0011, 4'b0100, 3'b010,2'b01,32'hFFFFFFFF,4'b0100);end // Transaction ordering
 			"fulltest":determine();
+			"reset_axi":reset_bus();
 		endcase
 
 		repeat(1000) 
@@ -171,6 +172,13 @@ class tester;
 		#50
 		read(32'hFFFFF7EE,4'b0000,4'b0000,3'b000,2'b00);
 	endtask		
+	task reset_bus();
+		@(negedge bfm.clk)
+		bfm.reset <= 'b0;
+		@(negedge bfm.clk)
+		bfm.reset <= 'b1;
+	endtask
+	
 endclass 
 
 class coverage;
