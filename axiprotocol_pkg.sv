@@ -54,7 +54,7 @@ class tester;
 			"readburst": read(32'h000005FF, 4'b0000, 4'b0000,3'b000,2'b00);//Read Burst 
 			"overlapping_readburst":begin read(32'h000005FF, 4'b0000, 4'b0000,3'b000,2'b00);read(32'h00000600, 4'b0000, 4'b0000,3'b000,2'b00);end //overlapping readbursts
 			"write_burst":write(32'h000006FE,4'b0011, 4'b0100, 3'b010,2'b01,32'hFFFFFFFF,4'b0100);//write burst
-			"out_of_order":begin read(32'h000008FF, 4'b0001,4'b0011,3'b010,2'b01);write(32'h000006FE,4'b0011, 4'b0100, 3'b010,2'b01,32'hFFFFFFFF,4'b0100);end // Transaction ordering
+			"out_of_order":begin fork read(32'h000008FF, 4'b0001,4'b0011,3'b010,2'b01);write(32'h000006FE,4'b0011, 4'b0100, 3'b010,2'b01,32'hFFFFFFFF,4'b0100);join end // Transaction ordering
 			"fulltest":determine();
 		endcase
 
@@ -69,7 +69,7 @@ class tester;
 				3'b000: begin read(r0.address,r0.readid, r0.readlen,r0.readsize,r0.readburst); end//read
 				3'b001: begin write(r0.waddress,r0.wlen, r0.wstrobe, r0.wsize,r0.wburst, r0.data, r0.writeid); end//write
 				3'b010: begin read(r0.address,r0.readid, r0.readlen,r0.readsize,r0.readburst);read(32'h00000600, 4'b0000, 4'b0000,3'b000,2'b00);end //overlapping readbursts
-				3'b011: begin read(r0.address, r0.readid,r0.readlen,r0.readsize,r0.readburst);write(r0.waddress,r0.wlen, r0.wstrobe, r0.wsize,r0.wburst,r0.data,r0.writeid);end // Transaction ordering
+				3'b011: begin fork read(r0.address, r0.readid,r0.readlen,r0.readsize,r0.readburst);write(r0.waddress,r0.wlen, r0.wstrobe, r0.wsize,r0.wburst,r0.data,r0.writeid);join end // Transaction ordering
 			endcase
           	end
 		end
