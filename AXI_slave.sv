@@ -31,7 +31,7 @@ enum logic [2:0] {R_CLEAR_S=3'b000, R_START_S, R_WAIT_S, R_VALID_S, R_ERROR_S } 
 integer wrap_boundary2, first_time2, first_time2_next;
 logic [4:0] counter, next_counter;
 logic [31:0] ARADDR_reg1, address_read,address_read_reg, address_read_temp;
-covergroup slavestates @(posedge clk);
+covergroup slavestates ;
 	coverpoint  WAState_S{
 		bins a1=(WA_IDLE_S=>WA_START_S);
 		bins a2=(WA_START_S=>WA_START_S);
@@ -72,12 +72,13 @@ covergroup slavestates @(posedge clk);
 		bins e10=(R_ERROR_S=>R_START_S);
 	}	
 endgroup
-
-slavestates sstate= new;
 initial
-	while(sstate.get_coverage()<100)
-		begin end
-
+	begin
+	slavestates sstate= new();
+	forever begin @(posedge clk)
+		sstate.sample();
+	end
+	end
 
 ///////////////////// WRITE ADDRESS CHANNEL SLAVE ////////////////////////////////////
 always_ff @(posedge clk or negedge resetn)	

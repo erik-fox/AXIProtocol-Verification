@@ -40,7 +40,7 @@ enum logic [2:0] {AR_IDLE_M=3'b000, AR_WAIT_M, AR_READY_M, AR_VALID_M, AR_EXTRA_
 logic [31:0] address_slave, address_slave_reg, address_slave_temp, ARADDR_reg;        
 enum logic [1:0] {R_CLEAR_M=2'b00, R_START_M, R_READ_M, R_VALID_M } RState_M,RNext_state_M;
 integer wrap_boundary1, first_time1, first_time1_next;
-covergroup masterstates @(posedge clk);
+covergroup masterstates;
 	coverpoint WAState_M {
 		bins a1 =(WA_IDLE_M=>WA_START_M);
 		bins a2 =(WA_START_M=>WA_WAIT_M);
@@ -86,10 +86,14 @@ covergroup masterstates @(posedge clk);
 		bins e6 = (R_VALID_M=>R_CLEAR_M);
 	}
 endgroup
-masterstates mstates = new;
 initial
-	while (mstates.get_coverage()<100) 
-		begin end
+	begin
+		masterstates mstates = new();
+		forever begin @(posedge clk)
+			mstates.sample();
+		end
+	end
+
 //////////////// WRITE ADDRESS CHANNEL MASTER//////////////////////////////////
 
 always_ff @(posedge clk or negedge resetn)	
