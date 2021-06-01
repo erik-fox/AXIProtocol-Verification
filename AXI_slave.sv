@@ -76,7 +76,7 @@ endgroup
 slavestates sstate= new;
 initial
 	while(sstate.get_coverage()<100)
-		
+		begin end
 
 
 ///////////////////// WRITE ADDRESS CHANNEL SLAVE ////////////////////////////////////
