@@ -4,7 +4,7 @@ class request;
 	//What are the appropriate constraints
 	rand bit [2:0] op;
 	rand bit [31:0] address; 
-	rand bit [3:0] readid;
+	randc bit [3:0] readid;
 	randc bit [3:0]readlen; 
 	rand bit [2:0] readsize; 
 	rand bit [1:0] readburst;
@@ -14,7 +14,7 @@ class request;
 	rand bit [2:0] wsize; 
 	rand bit [1:0] wburst; 
 	rand bit [31:0] data; 
-	rand bit [3:0] writeid;
+	randc bit [3:0] writeid;
   
 	//CONSTRAINTS
 	//FROM THE SPEC:
