@@ -248,28 +248,30 @@ endclass
 
 class scoreboard;
 	virtual tbbfm bfm;
-  	readq read_queue [$]
 	function new(virtual tbbfm b);
 		bfm=b;
 	endfunction
-	task execute(readq rqueue[$]);
-		readq rq;
-      		forever begin
+	task execute();
+      		readq rq=new();
+     		readq read_queue [$];
+      		forever 
+		begin
         		@(posedge bfm.clk)
 			begin
-      				fork
-					readin(rqueue);
-					rq= rqueue.pop_front();
-            			join
-        		end
+      				readin(read_queue);
+				rq = read_queue.pop_front();
+				$display("address: %h %t",rq.address,$time);
+			end
       		end
 	endtask
-	task readin(readq rqueue[$])
-		readq rq;
-		begin
+  	task readin(ref readq rqueue[$]);
+      	begin 
+		readq rq=new();
+		@(bfm.araddr)
+        	begin
 			if(bfm.araddr!=bfm.ARADDR || bfm.arid!=bfm.ARID || bfm.arlen != bfm.ARLEN || bfm.arsize!=bfm.ARSIZE || bfm.arburst!=bfm.ARBURST)
 			begin
-				@(bfm.araddr)
+			
 				begin
 					$error("Master not sending INFO on time %0t", $time);
 					if(!bfm.ARVALID)
@@ -277,20 +279,23 @@ class scoreboard;
 				end
 			end
 			else if(!bfm.ARVALID)
-					@(bfm.araddr)
-              					$error("Master not applying valid %0t", $time);
-			else
-			begin
+              			$error("Master not applying valid %0t", $time);
+        		@(posedge bfm.ARVALID)
+        		begin
 				rq.address=bfm.ARADDR;
 				rq.readid=bfm.ARID;
 				rq.readlen=bfm.ARLEN;
 				rq.readsize=bfm.ARSIZE;
 				rq.readburst=bfm.ARBURST;
 				rqueue.push_front(rq);
-			end
-				
+            		end
+            	end
+        end
 	endtask
 endclass
+      
+      
+      
 class testbench;
 	virtual tbbfm bfm;
 	tester tester_h;
