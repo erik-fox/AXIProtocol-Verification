@@ -237,18 +237,23 @@ class coverage;
 	endtask 
 endclass
 
+
 class scoreboard;
 	virtual tbbfm bfm;
+
 	function new(virtual tbbfm b);
 		bfm=b;
 	endfunction
 	task execute();
-		@(bfm.araddr)
-		begin
-			if(bfm.araddr!=bfm.ARADDR)
-				$error("Master not sending address");
-			if(!bfm.ARRVALID)
-				$error("Master not applying valid");
+      		forever begin
+			@(bfm.araddr)
+			begin
+      				if(bfm.araddr!=bfm.ARADDR)
+              				$error("Master not sending address %0t", $time);
+				if(!bfm.ARVALID)
+              				$error("Master not applying valid %0t", $time);
+        		end
+      		end
 	endtask
 endclass
 class testbench;
