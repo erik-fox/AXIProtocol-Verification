@@ -257,31 +257,20 @@ class scoreboard;
       		forever 
 		begin
         		@(posedge bfm.clk)
-			begin
-      				readin(read_queue);
+			begin	
+				fork	
+					overlapping_readchk();
+					insert_rq(read_queue);
+				join
 				rq = read_queue.pop_front();
 				$display("address: %h %t",rq.address,$time);
 			end
       		end
 	endtask
-  	task readin(ref readq rqueue[$]);
-      	begin 
-		readq rq=new();
-		@(bfm.araddr)
-        	begin
-			if(bfm.araddr!=bfm.ARADDR || bfm.arid!=bfm.ARID || bfm.arlen != bfm.ARLEN || bfm.arsize!=bfm.ARSIZE || bfm.arburst!=bfm.ARBURST)
-			begin
-			
-				begin
-					$error("Master signal not matching input %0t", $time);
-					if(!bfm.ARVALID)
-						$error("Master not applying valid on address change, necessary for overlapping readbursts %0t", $time);
-				end
-			end
-			else if(!bfm.ARVALID)
-              			$error("Master not applying valid on address change, necessary for overlapping readbursts %0t", $time);
-        		@(posedge bfm.ARVALID)
+	task insert_rq(ref readq rqueue[$]);
+		@(posedge bfm.ARVALID)
         		begin
+				readq rq=new();
 				if(bfm.araddr==bfm.ARADDR && bfm.arid==bfm.ARID && bfm.arlen == bfm.ARLEN && bfm.arsize==bfm.ARSIZE && bfm.arburst==bfm.ARBURST)
 				begin
 					rq.address=bfm.ARADDR;
@@ -292,8 +281,25 @@ class scoreboard;
 					rqueue.push_front(rq);
 				end
 				else
-					$error("Master signal not matching input %0t", $time);
+					$error("Master signal not matching input  on ARVALID %0t", $time);
             		end
+	endtask
+  	task overlapping_readchk();
+      	begin 
+		@(bfm.araddr)
+        	begin
+			if(bfm.araddr!=bfm.ARADDR || bfm.arid!=bfm.ARID || bfm.arlen != bfm.ARLEN || bfm.arsize!=bfm.ARSIZE || bfm.arburst!=bfm.ARBURST)
+			begin
+			
+				begin
+					$error("Master signal not matching input on address change %0t", $time);
+					if(!bfm.ARVALID)
+						$error("Master not applying valid on address change, necessary for overlapping readbursts %0t", $time);
+				end
+			end
+			else if(!bfm.ARVALID)
+              			$error("Master not applying valid on address change, necessary for overlapping readbursts %0t", $time);
+        		
             	end
         end
 	endtask
