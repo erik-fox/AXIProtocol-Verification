@@ -282,11 +282,11 @@ class scoreboard;
 					rq.bursts_remaining= bfm.ARLEN+1;
 					rq.readsize=bfm.ARSIZE;
 					rq.readburst=bfm.ARBURST;
-					forever begin
-						if(bfm.ARVALID && bfm.ARREADY)
-							break;
+					@(posedge bfm.ARREADY) 
+					begin
+						rqueue.push_front(rq);
 					end 
-					rqueue.push_front(rq);
+				
 				end
 				else
 					$error("Master signal not matching input  on ARVALID %0t", $time);
