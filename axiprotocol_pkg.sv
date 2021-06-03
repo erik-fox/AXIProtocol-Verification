@@ -243,14 +243,20 @@ class scoreboard;
 		bfm=b;
 	endfunction
 	task execute();
+		@(bfm.araddr)
+		begin
+			if(bfm.araddr!=bfm.ARADDR)
+				$error("Master not sending address");
+			if(!bfm.ARRVALID)
+				$error("Master not applying valid");
 	endtask
 endclass
 class testbench;
 	virtual tbbfm bfm;
 	tester tester_h;
     	coverage coverage_h;
-    	//scoreboard scoreboard_h;
-	//checker checker_h;
+    	scoreboard scoreboard_h;
+
     
     	function new (virtual tbbfm b);
       		bfm = b;
@@ -259,13 +265,12 @@ class testbench;
     	task execute();
       		tester_h = new(bfm);
       		coverage_h= new(bfm);
-      		//scoreboard_h = new(bfm);
-		//checker_h = new(bfm);
+      		scoreboard_h = new(bfm);
       		fork
         		tester_h.execute();
         		coverage_h.execute();
-        		//scoreboard_h.execute();
-			//checker_h.execute();
+        		scoreboard_h.execute();
+		
       		join_none
     	endtask
 endclass
