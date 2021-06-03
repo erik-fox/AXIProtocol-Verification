@@ -243,6 +243,7 @@ class readq;
 	bit [3:0]readlen; 
 	bit [2:0] readsize; 
 	bit [1:0] readburst;
+	int bursts_remaining;
    
 endclass
 
@@ -259,7 +260,7 @@ class scoreboard;
         		@(posedge bfm.clk)
 			begin	
 				fork	
-					overlapping_readchk();
+					read_inputresponsechk();
 					insert_rq(read_queue);
 				join
 				rq = read_queue.pop_front();
@@ -267,6 +268,7 @@ class scoreboard;
 			end
       		end
 	endtask
+	//add valid command to queue
 	task insert_rq(ref readq rqueue[$]);
 		@(posedge bfm.ARVALID)
         		begin
@@ -276,15 +278,22 @@ class scoreboard;
 					rq.address=bfm.ARADDR;
 					rq.readid=bfm.ARID;
 					rq.readlen=bfm.ARLEN;
+					rq.burstsremaining= bfmARLEN+1;
+					rq.s_ready='0;
 					rq.readsize=bfm.ARSIZE;
 					rq.readburst=bfm.ARBURST;
+					forever begin
+						if(bfm.ARVALID && bfm.ARREADY)
+							break
+					end 
 					rqueue.push_front(rq);
 				end
 				else
 					$error("Master signal not matching input  on ARVALID %0t", $time);
             		end
 	endtask
-  	task overlapping_readchk();
+	//Did the master reply to my commands
+	task read_inputresponsechk();
       	begin 
 		@(bfm.araddr)
         	begin
@@ -302,6 +311,44 @@ class scoreboard;
         		
             	end
         end
+	endtask
+	//Do the Master and slave communicate in accordance to my command
+	task read_signalcheck(ref readq rqueue[$]);
+		@(posedge bfm.RLAST||posedge bfm.RREADY||posedge bfm.RVALID)
+		begin
+			int i=0;
+			for(i = rqueue.size()-1; i>=-1;i--)
+			begin
+				if(i==-1)
+				begin
+					$error("No matches in the queue for signal changes");
+					break
+				end
+				if(rqueue.readid=bfm.RID)
+					break
+			end
+			if (i !=-1)//MATCH
+			begin
+				if(bfm.RVALID && !bfm.RLAST)//no particular valid order for valid and ready.  they just need to be up together
+				begin
+					if( bfm.RREADY)
+					begin
+						if(rqueue[i].burst_remaining==1)
+						begin
+							$error("Missing RLAST signal from slave on last burst);
+							rqueue.delete(i);
+						end
+						else
+							rqueue[i].bursts_remaining=rqueue[i].bursts_remaining-1;
+					end
+				end
+				else if(bfm.RVALID && bfm.RLAST)
+				begin
+				
+				
+				end
+			end		
+		end
 	endtask
 endclass
       
