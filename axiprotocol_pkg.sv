@@ -273,21 +273,26 @@ class scoreboard;
 			begin
 			
 				begin
-					$error("Master not sending INFO on time %0t", $time);
+					$error("Master signal not matching input %0t", $time);
 					if(!bfm.ARVALID)
-              					$error("Master not applying valid %0t", $time);
+						$error("Master not applying valid on address change, necessary for overlapping readbursts %0t", $time);
 				end
 			end
 			else if(!bfm.ARVALID)
-              			$error("Master not applying valid %0t", $time);
+              			$error("Master not applying valid on address change, necessary for overlapping readbursts %0t", $time);
         		@(posedge bfm.ARVALID)
         		begin
-				rq.address=bfm.ARADDR;
-				rq.readid=bfm.ARID;
-				rq.readlen=bfm.ARLEN;
-				rq.readsize=bfm.ARSIZE;
-				rq.readburst=bfm.ARBURST;
-				rqueue.push_front(rq);
+				if(bfm.araddr==bfm.ARADDR && bfm.arid==bfm.ARID && bfm.arlen == bfm.ARLEN && bfm.arsize==bfm.ARSIZE && bfm.arburst==bfm.ARBURST)
+				begin
+					rq.address=bfm.ARADDR;
+					rq.readid=bfm.ARID;
+					rq.readlen=bfm.ARLEN;
+					rq.readsize=bfm.ARSIZE;
+					rq.readburst=bfm.ARBURST;
+					rqueue.push_front(rq);
+				end
+				else
+					$error("Master signal not matching input %0t", $time);
             		end
             	end
         end
