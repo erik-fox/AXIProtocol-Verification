@@ -237,7 +237,14 @@ class coverage;
 	endtask 
 endclass
 
-
+class scoreboard;
+	virtual tbbfm bfm;
+	function new(virtual tbbfm b);
+		bfm=b;
+	endfunction
+	task execute();
+	endtask
+endclass
 class testbench;
 	virtual tbbfm bfm;
 	tester tester_h;
