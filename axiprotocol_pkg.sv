@@ -321,7 +321,7 @@ class scoreboard;
 			begin
 				if(i==-1)
 				begin
-					$error("No matches in the queue for signal changes");
+					$error("No matches in the queue for signal changes %0t", $time);
 					break
 				end
 				if(rqueue.readid=bfm.RID)
@@ -335,7 +335,7 @@ class scoreboard;
 					begin
 						if(rqueue[i].burst_remaining==1)
 						begin
-							$error("Missing RLAST signal from slave on last burst);
+							$error("Missing RLAST signal from slave on last burst %0t", $time);
 							rqueue.delete(i);
 						end
 						else
@@ -344,7 +344,12 @@ class scoreboard;
 				end
 				else if(bfm.RVALID && bfm.RLAST)
 				begin
-				
+					if(bfm.RREADY)
+					begin
+						if(rqueue[i].burst_remaining!=1)
+							$error("Premature RLAST %0t,"$time);
+						else
+							rqueue.delete(i);
 				
 				end
 			end		
