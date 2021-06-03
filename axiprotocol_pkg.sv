@@ -262,6 +262,7 @@ class scoreboard;
 				fork	
 					read_inputresponsechk();
 					insert_rq(read_queue);
+					read_signalcheck(read_queue);
 				join
 				rq = read_queue.pop_front();
 				$display("address: %h %t",rq.address,$time);
@@ -278,13 +279,12 @@ class scoreboard;
 					rq.address=bfm.ARADDR;
 					rq.readid=bfm.ARID;
 					rq.readlen=bfm.ARLEN;
-					rq.burstsremaining= bfmARLEN+1;
-					rq.s_ready='0;
+					rq.bursts_remaining= bfm.ARLEN+1;
 					rq.readsize=bfm.ARSIZE;
 					rq.readburst=bfm.ARBURST;
 					forever begin
 						if(bfm.ARVALID && bfm.ARREADY)
-							break
+							break;
 					end 
 					rqueue.push_front(rq);
 				end
@@ -314,7 +314,7 @@ class scoreboard;
 	endtask
 	//Do the Master and slave communicate in accordance to my command
 	task read_signalcheck(ref readq rqueue[$]);
-		@(posedge bfm.RLAST||posedge bfm.RREADY||posedge bfm.RVALID)
+		@( bfm.RLAST|| bfm.RREADY|| bfm.RVALID)
 		begin
 			int i=0;
 			for(i = rqueue.size()-1; i>=-1;i--)
@@ -322,10 +322,10 @@ class scoreboard;
 				if(i==-1)
 				begin
 					$error("No matches in the queue for signal changes %0t", $time);
-					break
+					break;
 				end
-				if(rqueue.readid=bfm.RID)
-					break
+				if(rqueue[i].readid==bfm.RID)
+					break;
 			end
 			if (i !=-1)//MATCH
 			begin
@@ -333,7 +333,7 @@ class scoreboard;
 				begin
 					if( bfm.RREADY)
 					begin
-						if(rqueue[i].burst_remaining==1)
+						if(rqueue[i].bursts_remaining==1)
 						begin
 							$error("Missing RLAST signal from slave on last burst %0t", $time);
 							rqueue.delete(i);
@@ -346,10 +346,11 @@ class scoreboard;
 				begin
 					if(bfm.RREADY)
 					begin
-						if(rqueue[i].burst_remaining!=1)
-							$error("Premature RLAST %0t,"$time);
+						if(rqueue[i].bursts_remaining!=1)
+							$error("Premature RLAST %0t",$time);
 						else
 							rqueue.delete(i);
+					end
 				
 				end
 			end		
