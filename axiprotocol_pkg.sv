@@ -255,21 +255,8 @@ class scoreboard;
 	task execute();
       		readq rq=new();
      		readq read_queue [$];
-      		forever 
-		begin
-        		@(posedge bfm.clk)
-			begin	
-				fork	
-					read_inputresponsechk();
-					insert_rq(read_queue);
-					read_signalcheck(read_queue);
-				join
-			end
-      		end
-	endtask
-	//add valid command to queue
-	task insert_rq(ref readq rqueue[$]);
-		@(posedge bfm.ARVALID)
+		fork
+			forever @(posedge bfm.ARVALID)
         		begin
 				readq rq=new();
 				if(bfm.araddr==bfm.ARADDR && bfm.arid==bfm.ARID && bfm.arlen == bfm.ARLEN && bfm.arsize==bfm.ARSIZE && bfm.arburst==bfm.ARBURST)
@@ -282,78 +269,81 @@ class scoreboard;
 					rq.readburst=bfm.ARBURST;
 					@(posedge bfm.ARREADY) 
 					begin
-						rqueue.push_front(rq);
+						#1;
+						$display("push to queue %0t",$time);
+						read_queue.push_front(rq);
 					end 
 				
 				end
 				else
 					$error("Master signal not matching input  on ARVALID %0t", $time);
             		end
-	endtask
-	//Did the master reply to my commands
-	task read_inputresponsechk();
-      	begin 
-		@(bfm.araddr)
-        	begin
-			if(bfm.araddr!=bfm.ARADDR || bfm.arid!=bfm.ARID || bfm.arlen != bfm.ARLEN || bfm.arsize!=bfm.ARSIZE || bfm.arburst!=bfm.ARBURST)
-			begin
-			
+		join_none
+
+		fork
+			forever @(bfm.araddr)
+        		begin
+				if(bfm.araddr!=bfm.ARADDR || bfm.arid!=bfm.ARID || bfm.arlen != bfm.ARLEN || bfm.arsize!=bfm.ARSIZE || bfm.arburst!=bfm.ARBURST)
 				begin
 					$error("Master signal not matching input on address change %0t", $time);
 					if(!bfm.ARVALID)
 						$error("Master not applying valid on address change, necessary for overlapping readbursts %0t", $time);
 				end
+				else if(!bfm.ARVALID)
+              				$error("Master not applying valid on address change, necessary for overlapping readbursts %0t", $time);
 			end
-			else if(!bfm.ARVALID)
-              			$error("Master not applying valid on address change, necessary for overlapping readbursts %0t", $time);
-        		
-            	end
-        end
-	endtask
-	//Do the Master and slave communicate in accordance to my command
-	task read_signalcheck(ref readq rqueue[$]);
-		@(posedge bfm.RREADY)
-		begin
-			int i=0;
-			#1;
-			if(rqueue.size()>0)
+            	
+		join_none
+
+		fork
+			forever @(posedge bfm.RREADY)
 			begin
-				for(i = rqueue.size()-1; i>=-1;i--)
+				int i=0;
+				if(read_queue.size()>0)
 				begin
-					if(i==-1)
+					for(i = read_queue.size()-1; i>=-1;i--)
 					begin
-						$error("No matches in the queue for signal changes %0t", $time);
-						break;
+						if(i==-1)
+						begin
+							$error("No matches in the queue for signal changes %0t", $time);
+							break;
+						end
+						if(read_queue[i].readid==bfm.RID)
+							break;
 					end
-					if(rqueue[i].readid==bfm.RID)
-						break;
 				end
-			end
-			if (i !=-1)//MATCH
-			begin
-				if(bfm.RVALID && !bfm.RLAST)//no particular valid order for valid and ready.  they just need to be up together
+				if (i !=-1)//MATCH
 				begin
-					if(rqueue[i].bursts_remaining==1)
+					$display("RVALID %d RLAST %d %0t", bfm.RVALID,bfm.RLAST,$time);
+					if(bfm.RVALID && !bfm.RLAST)//no particular valid order for valid and ready.  they just need to be up together
 					begin
-						$error("Missing RLAST signal from slave on last burst %0t", $time);
-						rqueue.delete(i);
-					end
-					else
-						rqueue[i].bursts_remaining=rqueue[i].bursts_remaining-1;
-				end
-				else if(bfm.RVALID && bfm.RLAST)
-				begin
-					if(bfm.RREADY)
-					begin
-						if(rqueue[i].bursts_remaining!=1)
-							$error("Premature RLAST %0t",$time);
+						if(read_queue[i].bursts_remaining==1)
+						begin
+							$display("bursts remaining %d %0t", read_queue[i].bursts_remaining,$time);
+							$error("Missing RLAST signal from slave on last burst %0t", $time);
+							read_queue.delete(i);
+							$display("pop from queue %0t",$time);
+						end
 						else
-							rqueue.delete(i);
+							read_queue[i].bursts_remaining=read_queue[i].bursts_remaining-1;
+					end
+					else if(bfm.RVALID && bfm.RLAST)
+					begin
+						if(bfm.RREADY)
+						begin
+							if(read_queue[i].bursts_remaining!=1)
+								$error("Premature RLAST %0t",$time);
+							else
+							begin
+								read_queue.delete(i);
+								$display("pop from queue %0t",$time);
+							end
+						end
 					end
 				
 				end
-			end		
-		end
+			end
+		join_none
 	endtask
 endclass
       
