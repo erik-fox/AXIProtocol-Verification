@@ -246,6 +246,17 @@ class readq;
 	int bursts_remaining;
    
 endclass
+class writeq;
+	bit [31:0]waddress;  
+	bit [3:0] wlen;
+	bit [3:0] wstrobe;
+	bit [2:0] wsize;
+	bit [1:0] wburst;
+	bit [31:0] data;
+	bit [3:0] writeid;
+	int bursts_remaining;
+   
+endclass
 
 class scoreboard;
 	virtual tbbfm bfm;
@@ -253,8 +264,9 @@ class scoreboard;
 		bfm=b;
 	endfunction
 	task execute();
-      		readq rq=new();
      		readq read_queue [$];
+		writeq write_queue [$];
+		
 		fork
 			forever @(posedge bfm.ARVALID)
         		begin
@@ -270,9 +282,13 @@ class scoreboard;
 					rq.readburst=bfm.ARBURST;
 					@(posedge bfm.ARREADY) 
 					begin
-						#1;
-						$display("push to queue %0t",$time);
-						read_queue.push_front(rq);
+						if(bfm.araddr==bfm.ARADDR && bfm.arid==bfm.ARID && bfm.arlen == bfm.ARLEN && bfm.arsize==bfm.ARSIZE && bfm.arburst==bfm.ARBURST)
+						begin
+							$display("push to queue %0t",$time);
+							read_queue.push_front(rq);
+						end
+						else
+							$error("Master signal not matching input  on ARREADY %0t", $time);
 					end 
 				
 				end
@@ -280,6 +296,39 @@ class scoreboard;
 					$error("Master signal not matching input  on ARVALID %0t", $time);
             		end
 		join_none
+		
+		fork
+			forever @(posedge bfm.AWVALID)
+        		begin
+				writeq wq=new();
+				#1;
+				if(bfm.awaddr==bfm.AWADDR && bfm.awid==bfm.AWID && bfm.awlen == bfm.AWLEN && bfm.awsize==bfm.AWSIZE && bfm.awburst==bfm.AWBURST)
+				begin
+					wq.waddress=bfm.AWADDR;
+					wq.writeid=bfm.AWID;
+					wq.wlen=bfm.AWLEN;
+					wq.bursts_remaining= bfm.AWLEN+1;
+					wq.wsize=bfm.AWSIZE;
+					wq.wburst=bfm.AWBURST;
+					@(posedge bfm.AWREADY) 
+					begin
+						if(bfm.awaddr==bfm.AWADDR && bfm.awid==bfm.AWID && bfm.awlen == bfm.AWLEN && bfm.awsize==bfm.AWSIZE && bfm.awburst==bfm.AWBURST)
+						begin
+							$display("push to queue %0t",$time);
+							write_queue.push_front(wq);
+						end
+						else
+							$error("Master signal not matching input  on AWREADY %0t", $time);
+					end 
+				
+				end
+				else
+					$error("Master signal not matching input  on AWVALID %0t", $time);
+            		end
+		join_none
+		
+		
+		
 
 		fork
 			forever @(bfm.araddr)
@@ -315,25 +364,22 @@ class scoreboard;
 						if(read_queue[i].readid==bfm.RID)
 							break;
 					end
-				end
-				if (i !=-1)//MATCH
-				begin
-					$display("RVALID %d RLAST %d %0t", bfm.RVALID,bfm.RLAST,$time);
-					if(bfm.RVALID && !bfm.RLAST)//no particular valid order for valid and ready.  they just need to be up together
+					if (i !=-1)//MATCH
 					begin
-						if(read_queue[i].bursts_remaining==1)
+						$display("RVALID %d RLAST %d %0t", bfm.RVALID,bfm.RLAST,$time);
+						if(bfm.RVALID && !bfm.RLAST)//no particular valid order for valid and ready.  they just need to be up together
 						begin
-							$display("bursts remaining %d %0t", read_queue[i].bursts_remaining,$time);
-							$error("Missing RLAST signal from slave on last burst %0t", $time);
-							read_queue.delete(i);
-							$display("pop from queue %0t",$time);
+							if(read_queue[i].bursts_remaining==1)
+							begin
+								$display("bursts remaining %d %0t", read_queue[i].bursts_remaining,$time);
+								$error("Missing RLAST signal from slave on last burst %0t", $time);
+								read_queue.delete(i);
+								$display("pop from queue %0t",$time);
+							end
+							else
+								read_queue[i].bursts_remaining=read_queue[i].bursts_remaining-1;
 						end
-						else
-							read_queue[i].bursts_remaining=read_queue[i].bursts_remaining-1;
-					end
-					else if(bfm.RVALID && bfm.RLAST)
-					begin
-						if(bfm.RREADY)
+						else if(bfm.RVALID && bfm.RLAST)
 						begin
 							if(read_queue[i].bursts_remaining!=1)
 								$error("Premature RLAST %0t",$time);
@@ -344,7 +390,54 @@ class scoreboard;
 							end
 						end
 					end
+				end
+			end
+		join_none
+		fork
+			forever @(posedge bfm.WREADY)
+			begin
+				int i=0;
+				#1;
+				if(write_queue.size()>0)
+				begin
+					$display("queue size %d %0t", write_queue.size(), $time);
+					for(i = write_queue.size()-1; i>=-1;i--)
+					begin
+						if(i==-1)
+						begin
+							$error("No matches in the queue for signal changes %0t", $time);
+							break;
+						end
+						if(write_queue[i].writeid==bfm.WID)
+							break;
+					end
 				
+					if (i !=-1)//MATCH
+					begin
+						$display("WVALID %d WLAST %d %0t", bfm.WVALID,bfm.WLAST,$time);
+						if(bfm.WVALID && !bfm.WLAST)//no particular valid order for valid and ready.  they just need to be up together
+						begin
+							if(write_queue[i].bursts_remaining==1)
+							begin
+								$display("bursts remaining %d %0t", write_queue[i].bursts_remaining,$time);
+								$error("Missing WLAST signal from slave on last burst %0t", $time);
+								write_queue.delete(i);
+								$display("pop from queue %0t",$time);
+							end
+							else
+								write_queue[i].bursts_remaining=write_queue[i].bursts_remaining-1;
+						end
+						else if(bfm.WVALID && bfm.RLAST)
+						begin
+							if(write_queue[i].bursts_remaining!=1)
+								$error("Premature WLAST %0t",$time);
+							else
+							begin
+								write_queue.delete(i);
+								$display("pop from queue %0t",$time);
+							end
+						end
+					end
 				end
 			end
 		join_none
