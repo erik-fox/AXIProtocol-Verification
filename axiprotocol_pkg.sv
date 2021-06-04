@@ -427,7 +427,7 @@ class scoreboard;
 							else
 								write_queue[i].bursts_remaining=write_queue[i].bursts_remaining-1;
 						end
-						else if(bfm.WVALID && bfm.RLAST)
+						else if(bfm.WVALID && bfm.WLAST)
 						begin
 							if(write_queue[i].bursts_remaining!=1)
 								$error("Premature WLAST %0t",$time);
