@@ -304,6 +304,7 @@ class scoreboard;
 				#1;
 				if(read_queue.size()>0)
 				begin
+					$display("queue size %d %0t", read_queue.size(), $time);
 					for(i = read_queue.size()-1; i>=-1;i--)
 					begin
 						if(i==-1)
