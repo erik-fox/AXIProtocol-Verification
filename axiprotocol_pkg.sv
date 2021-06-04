@@ -360,7 +360,6 @@ class scoreboard;
 				#1;
 				if(read_queue.size()>0)
 				begin
-					$display("queue size %d %0t", read_queue.size(), $time);
 					for(i = read_queue.size()-1; i>=-1;i--)
 					begin
 						if(i==-1)
@@ -373,15 +372,12 @@ class scoreboard;
 					end
 					if (i !=-1)//MATCH
 					begin
-						$display("RVALID %d RLAST %d %0t", bfm.RVALID,bfm.RLAST,$time);
 						if(bfm.RVALID && !bfm.RLAST)//no particular valid order for valid and ready.  they just need to be up together
 						begin
 							if(read_queue[i].bursts_remaining==1)
 							begin
-								$display("bursts remaining %d %0t", read_queue[i].bursts_remaining,$time);
 								$error("Missing RLAST signal from slave on last burst %0t", $time);
 								read_queue.delete(i);
-								$display("pop from queue %0t",$time);
 							end
 							else
 								read_queue[i].bursts_remaining=read_queue[i].bursts_remaining-1;
@@ -393,7 +389,6 @@ class scoreboard;
 							else
 							begin
 								read_queue.delete(i);
-								$display("pop from queue %0t",$time);
 							end
 						end
 					end
@@ -407,7 +402,6 @@ class scoreboard;
 				#1;
 				if(write_queue.size()>0)
 				begin
-					$display("queue size %d %0t", write_queue.size(), $time);
 					for(i = write_queue.size()-1; i>=-1;i--)
 					begin
 						if(i==-1)
@@ -421,15 +415,12 @@ class scoreboard;
 				
 					if (i !=-1)//MATCH
 					begin
-						$display("WVALID %d WLAST %d %0t", bfm.WVALID,bfm.WLAST,$time);
 						if(bfm.WVALID && !bfm.WLAST)//no particular valid order for valid and ready.  they just need to be up together
 						begin
 							if(write_queue[i].bursts_remaining==1)
 							begin
-								$display("bursts remaining %d %0t", write_queue[i].bursts_remaining,$time);
 								$error("Missing WLAST signal from slave on last burst %0t", $time);
 								write_queue.delete(i);
-								$display("pop from queue %0t",$time);
 							end
 							else
 								write_queue[i].bursts_remaining=write_queue[i].bursts_remaining-1;
@@ -446,7 +437,6 @@ class scoreboard;
 									if(bfm.BID==write_queue[i].writeid)
 									begin
 										write_queue.delete(i);
-										$display("pop from queue %0t",$time);
 									end
 									else
 										$error("BID doesn't match WID %0t",$time);
