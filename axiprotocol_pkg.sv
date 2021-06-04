@@ -63,9 +63,9 @@ class tester;
 		begin
           	@(posedge bfm.clk);
          	 begin
-			   //$display("Hi");
+
 			    assert(r0.randomize());
-                 //$display($time,"r0.op=%d",r0.op);
+
 			case(r0.op)
 				3'b000: begin read(r0.address,r0.readid, r0.readlen,r0.readsize,r0.readburst); end//read
 				3'b001: begin write(r0.waddress,r0.wlen, r0.wstrobe, r0.wsize,r0.wburst, r0.data, r0.writeid); end//write
@@ -82,8 +82,8 @@ class tester;
   			bfm.arsize=readsize;
   			bfm.arburst=readburst;
          	forever begin
-           @(posedge bfm.ARREADY);
-             	break;
+           		@(posedge bfm.ARREADY);
+             			break;
         	 end 
   
 	endtask
@@ -266,17 +266,17 @@ class scoreboard;
 	task execute();
      		readq read_queue [$];
 		writeq write_queue [$];
-		fork
+		fork //Checks if the slave assert rlast and not rvalid
 			forever @(posedge bfm.RLAST)
 				if(!bfm.RVALID)
 					$error(" Invalid RLast signal %0t", $time);
 		join_none
-		fork
+		fork//Checks if the slave assert wlast and not wvalid
 			forever@(posedge bfm.WLAST)
 				if(!bfm.WVALID)
 					$error("Invalid Wlast signal %0t", $time);
 		join_none
-		fork
+		fork //add valid reads to queue to facilitate out of order processing
 			forever @(posedge bfm.ARVALID)
         		begin
 				readq rq=new();
@@ -293,7 +293,6 @@ class scoreboard;
 					begin
 						if(bfm.araddr==bfm.ARADDR && bfm.arid==bfm.ARID && bfm.arlen == bfm.ARLEN && bfm.arsize==bfm.ARSIZE && bfm.arburst==bfm.ARBURST)
 						begin
-							$display("push to queue %0t",$time);
 							read_queue.push_front(rq);
 						end
 						else
@@ -306,7 +305,7 @@ class scoreboard;
             		end
 		join_none
 		
-		fork
+		fork//add valid writes to queue to facilitate out of order processing
 			forever @(posedge bfm.AWVALID)
         		begin
 				writeq wq=new();
@@ -323,7 +322,6 @@ class scoreboard;
 					begin
 						if(bfm.awaddr==bfm.AWADDR && bfm.awid==bfm.AWID && bfm.awlen == bfm.AWLEN && bfm.awsize==bfm.AWSIZE && bfm.awburst==bfm.AWBURST)
 						begin
-							$display("push to queue %0t",$time);
 							write_queue.push_front(wq);
 						end
 						else
@@ -339,7 +337,7 @@ class scoreboard;
 		
 		
 
-		fork
+		fork  //Check if overlapping reads are supported
 			forever @(bfm.araddr)
         		begin
 				#1;
@@ -355,7 +353,7 @@ class scoreboard;
             	
 		join_none
 
-		fork
+		fork//checks if burst lengths are correct and data transfer handshaking protocols are followed; supports out of order processing for reads
 			forever @(posedge bfm.RREADY)
 			begin
 				int i=0;
@@ -402,7 +400,7 @@ class scoreboard;
 				end
 			end
 		join_none
-		fork
+		fork//checks if burst lengths are correct and data transfer handshaking protocols are followed; supports out of order processing for writes
 			forever @(posedge bfm.WREADY)
 			begin
 				int i=0;
