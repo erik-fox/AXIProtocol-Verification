@@ -266,7 +266,16 @@ class scoreboard;
 	task execute();
      		readq read_queue [$];
 		writeq write_queue [$];
-		
+		fork
+			forever @(posedge bfm.RLAST)
+				if(!bfm.RVALID)
+					$error(" Invalid RLast signal %0t", $time);
+		join_none
+		fork
+			forever@(posedge bfm.WLAST)
+				if(!bfm.WVALID)
+					$error("Invalid Wlast signal %0t", $time);
+		join_none
 		fork
 			forever @(posedge bfm.ARVALID)
         		begin
