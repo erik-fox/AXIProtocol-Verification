@@ -263,7 +263,7 @@ class scoreboard;
 					read_inputresponsechk();
 					insert_rq(read_queue);
 					read_signalcheck(read_queue);
-				join_none
+				join
 			end
       		end
 	endtask
@@ -312,33 +312,34 @@ class scoreboard;
 	endtask
 	//Do the Master and slave communicate in accordance to my command
 	task read_signalcheck(ref readq rqueue[$]);
-		@( bfm.RLAST|| bfm.RREADY|| bfm.RVALID)
+		@(posedge bfm.RREADY)
 		begin
 			int i=0;
-			for(i = rqueue.size()-1; i>=-1;i--)
+			#1;
+			if(rqueue.size()>0)
 			begin
-				if(i==-1)
+				for(i = rqueue.size()-1; i>=-1;i--)
 				begin
-					$error("No matches in the queue for signal changes %0t", $time);
-					break;
+					if(i==-1)
+					begin
+						$error("No matches in the queue for signal changes %0t", $time);
+						break;
+					end
+					if(rqueue[i].readid==bfm.RID)
+						break;
 				end
-				if(rqueue[i].readid==bfm.RID)
-					break;
 			end
 			if (i !=-1)//MATCH
 			begin
 				if(bfm.RVALID && !bfm.RLAST)//no particular valid order for valid and ready.  they just need to be up together
 				begin
-					if( bfm.RREADY)
+					if(rqueue[i].bursts_remaining==1)
 					begin
-						if(rqueue[i].bursts_remaining==1)
-						begin
-							$error("Missing RLAST signal from slave on last burst %0t", $time);
-							rqueue.delete(i);
-						end
-						else
-							rqueue[i].bursts_remaining=rqueue[i].bursts_remaining-1;
+						$error("Missing RLAST signal from slave on last burst %0t", $time);
+						rqueue.delete(i);
 					end
+					else
+						rqueue[i].bursts_remaining=rqueue[i].bursts_remaining-1;
 				end
 				else if(bfm.RVALID && bfm.RLAST)
 				begin
