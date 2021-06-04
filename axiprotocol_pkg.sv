@@ -259,6 +259,7 @@ class scoreboard;
 			forever @(posedge bfm.ARVALID)
         		begin
 				readq rq=new();
+				#1;
 				if(bfm.araddr==bfm.ARADDR && bfm.arid==bfm.ARID && bfm.arlen == bfm.ARLEN && bfm.arsize==bfm.ARSIZE && bfm.arburst==bfm.ARBURST)
 				begin
 					rq.address=bfm.ARADDR;
@@ -283,6 +284,7 @@ class scoreboard;
 		fork
 			forever @(bfm.araddr)
         		begin
+				#1;
 				if(bfm.araddr!=bfm.ARADDR || bfm.arid!=bfm.ARID || bfm.arlen != bfm.ARLEN || bfm.arsize!=bfm.ARSIZE || bfm.arburst!=bfm.ARBURST)
 				begin
 					$error("Master signal not matching input on address change %0t", $time);
@@ -299,6 +301,7 @@ class scoreboard;
 			forever @(posedge bfm.RREADY)
 			begin
 				int i=0;
+				#1;
 				if(read_queue.size()>0)
 				begin
 					for(i = read_queue.size()-1; i>=-1;i--)
