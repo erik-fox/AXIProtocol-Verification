@@ -442,20 +442,17 @@ class scoreboard;
 								$error("Premature WLAST %0t",$time);
 							else
 							begin
-								@(posedge bfm.BVALID)
+								@(posedge bfm.BVALID and bfm BREADY)
 								begin
-									if(bfm.BREADY)
+									#1;
+									if(bfm.BID==write_queue[i].writeid)
 									begin
-										if(bfm.BID==write_queue[i].writeid)
-										begin
-											write_queue.delete(i);
-											$display("pop from queue %0t",$time);
-										end
-										else
-											$error("BID doesn't match WID %0t",$time);
+										write_queue.delete(i);
+										$display("pop from queue %0t",$time);
 									end
 									else
-										$error("BVALID and BREADY timing error %0t", $time);
+										$error("BID doesn't match WID %0t",$time);
+									
 								end
 							end
 						end
