@@ -442,7 +442,7 @@ class scoreboard;
 								$error("Premature WLAST %0t",$time);
 							else
 							begin
-								@(posedge bfm.BVALID and bfm BREADY)
+								@(posedge bfm.BVALID && bfm.BREADY)
 								begin
 									#1;
 									if(bfm.BID==write_queue[i].writeid)
