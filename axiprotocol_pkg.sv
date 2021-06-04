@@ -263,7 +263,7 @@ class scoreboard;
 					read_inputresponsechk();
 					insert_rq(read_queue);
 					read_signalcheck(read_queue);
-				join
+				join_none
 				rq = read_queue.pop_front();
 				$display("address: %h %t",rq.address,$time);
 			end
